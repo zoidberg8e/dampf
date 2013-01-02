@@ -14,13 +14,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 public class MainGUI extends JFrame implements ActionListener {
     
     JMenuItem exit;
-    JButton myGames, profile, explorer;
+    JScrollPane myGames, profile, explorer, news;
     JPanel mainWindow;
+    JTextField searchFriends;
+    JButton addFriend, logout;
 
     public MainGUI() {
         super("GManager");
@@ -41,29 +44,46 @@ public class MainGUI extends JFrame implements ActionListener {
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
         
-        JPanel navigation = new JPanel();
-        navigation.setLayout(new GridLayout(0, 1, 2, 2));
-        cp.add(navigation, BorderLayout.WEST);
+        JTabbedPane tabbedPane = new JTabbedPane();
+        cp.add(tabbedPane, BorderLayout.CENTER);
         
-        profile = new JButton("My Profile");
-        profile.addActionListener(this);
-        navigation.add(profile);
+        news = new JScrollPane();
+        tabbedPane.addTab("News", news);
         
-        myGames = new JButton("My Games");
-        myGames.addActionListener(this);
-        navigation.add(myGames);
+        profile = new JScrollPane();
+        tabbedPane.addTab("My Profile", profile);
         
-        explorer = new JButton("Game Explorer");
-        explorer.addActionListener(this);
-        navigation.add(explorer);
+        myGames = new JScrollPane();
+        tabbedPane.addTab("My Games", myGames);
         
-        mainWindow = new JPanel();
-        mainWindow.setLayout(new BorderLayout());
+        explorer = new JScrollPane();
+        tabbedPane.addTab("Game Explorer", explorer);
         
-        JScrollPane scroll = new JScrollPane(mainWindow);
-        cp.add(scroll, BorderLayout.CENTER);
+        JPanel east = new JPanel();
+        east.setLayout(new BorderLayout());
+        cp.add(east, BorderLayout.EAST);
         
-        showGameExplorer();
+        JPanel userControl = new JPanel();
+        userControl.setAlignmentX(0);
+        east.add(userControl, BorderLayout.NORTH);
+        
+        addFriend = new JButton("add");
+        addFriend.setToolTipText("Add a friend to your friendlist.");
+        addFriend.addActionListener(this);
+        userControl.add(addFriend);
+        
+        logout = new JButton("logout");
+        logout.setToolTipText("Logout");
+        logout.addActionListener(this);
+        userControl.add(logout);
+        
+        JPanel friends = new JPanel();
+        JScrollPane friendsScrollPane = new JScrollPane(friends);
+        east.add(friendsScrollPane, BorderLayout.CENTER);
+        
+        searchFriends = new JTextField(20);
+        searchFriends.setToolTipText("Search for a friend.");
+        east.add(searchFriends, BorderLayout.SOUTH);
         
         pack();
         setVisible(true);
@@ -79,6 +99,7 @@ public class MainGUI extends JFrame implements ActionListener {
     
     public void showGameExplorer() {
         mainWindow.removeAll();
+        
         JPanel topLine = new JPanel();
         topLine.setLayout(new BorderLayout());
         mainWindow.add(topLine, BorderLayout.NORTH);
@@ -105,6 +126,9 @@ public class MainGUI extends JFrame implements ActionListener {
         if(e.getSource().equals(exit)) {
             System.exit(0);
         }
+        if(e.getSource().equals(logout)) {
+            dispose();
+            new LoginScreen();
+        }
     }
-    
 }

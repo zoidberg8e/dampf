@@ -1,5 +1,7 @@
 package gmanager;
 
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author doldpa
@@ -13,6 +15,10 @@ public class GManager {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        new LoginScreen();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new LoginScreen();
+            }
+        });
     }
 }

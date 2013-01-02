@@ -85,7 +85,7 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
      * 
      */
     public boolean authenticate(String user, String password) {
-        return DBConnector.getInstance().checkLogin();
+        return DBConnector.getInstance().checkLogin(user, password);
     }
     
     /**

@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -23,12 +24,31 @@ public final class DBConnector {
         }*/
     }
     
-    public boolean checkLogin() {
-        return true;
+    public boolean checkLogin(String username, String pw) {
+        if (!DBConnector.getInstance().userExists(username)) {
+            return false;
+        }
+        int hashPW = pw.hashCode();
+        int hashCorrect = getPassword(username);
+        hashCorrect = hashPW;
+        if (hashCorrect == hashPW) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     
+    private int getPassword(String username) {
+        return 1;
+    }
+    
+    public ImageIcon getUserImage(String username) {
+        return new ImageIcon();
+    } 
+    
     public boolean userExists(String name) {
-        return false;
+        return true;
     }
     
     public static DBConnector getInstance() {
