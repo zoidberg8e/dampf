@@ -1,8 +1,12 @@
 package gmanager;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -13,20 +17,26 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 public class MainGUI extends JFrame implements ActionListener {
     
-    JMenuItem exit;
-    JScrollPane myGames, profile, explorer, news;
-    JPanel mainWindow;
-    JTextField searchFriends;
-    JButton addFriend, logout;
+    private JMenuItem exit;
+    private JScrollPane myGames, profile, explorer, news;
+    private JPanel mainWindow;
+    private JTextField searchFriends;
+    private JButton addFriend, logout;
+    private JTabbedPane tabbedPane;
+    private GManager gameManager;
 
-    public MainGUI() {
+    public MainGUI(GManager gm) {
         super("GManager");
+        
+        gameManager = gm;
+        
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setExtendedState(MAXIMIZED_BOTH);
         JMenuBar menubar = new JMenuBar();
@@ -44,7 +54,7 @@ public class MainGUI extends JFrame implements ActionListener {
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
         
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         cp.add(tabbedPane, BorderLayout.CENTER);
         
         news = new JScrollPane();
@@ -77,8 +87,25 @@ public class MainGUI extends JFrame implements ActionListener {
         logout.addActionListener(this);
         userControl.add(logout);
         
+        JPanel alignNorth = new JPanel();
+        alignNorth.setLayout(new BorderLayout());
+        
         JPanel friends = new JPanel();
-        JScrollPane friendsScrollPane = new JScrollPane(friends);
+        friends.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.gridy = 0;
+        c.insets = new Insets(2, 3, 0, 3);
+        JPanel[] friend = createFriendPanels();
+        for (JPanel panel : friend) {
+            friends.add(panel, c);
+            c.gridy++;
+        }
+        alignNorth.add(friends, BorderLayout.NORTH);
+        
+        JScrollPane friendsScrollPane = new JScrollPane(alignNorth);
+        friendsScrollPane.getVerticalScrollBar().setUnitIncrement(15);
         east.add(friendsScrollPane, BorderLayout.CENTER);
         
         searchFriends = new JTextField(20);
@@ -86,7 +113,34 @@ public class MainGUI extends JFrame implements ActionListener {
         east.add(searchFriends, BorderLayout.SOUTH);
         
         pack();
-        setVisible(true);
+        setVisible(true);  
+    }
+    
+    public JPanel[] createFriendPanels() {
+        User[] friends = gameManager.getUser().getFriends();
+        JPanel[] panels = new JPanel[friends.length];
+        for (int i = 0; i < panels.length; i++) {
+            JPanel friend = new JPanel();
+            friend.setLayout(new BorderLayout());
+            
+            JPopupMenu friendMenu = new JPopupMenu();
+            friendMenu.add(new JMenuItem("Show Profile"));
+            friendMenu.add(new JMenuItem("Chat"));
+            friend.setComponentPopupMenu(friendMenu);
+            
+            JLabel friendThumbnail = new JLabel(friends[i].getUserImage());
+            friendThumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            friend.add(friendThumbnail, BorderLayout.WEST);
+            
+            JLabel friendName = new JLabel(friends[i].getUsername());
+            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+            friend.add(friendName, BorderLayout.CENTER);
+            
+            friend.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
+            
+            panels[i] = friend;
+        }
+        return panels;
     }
     
     public void showProfile() {

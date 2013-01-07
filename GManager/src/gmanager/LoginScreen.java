@@ -109,7 +109,7 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
         if (valid) {
             if (authenticate(name, pw)) {
                 dispose();
-                new MainGUI();
+                new MainGUI(new GManager(new User(DBConnector.getInstance().getUserID(name))));
             }
             else {
                 JOptionPane.showMessageDialog(null, "Invalid username or password.", "Access denied", JOptionPane.ERROR_MESSAGE);

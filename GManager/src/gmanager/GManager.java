@@ -8,7 +8,14 @@ import javax.swing.SwingUtilities;
  */
 public class GManager {
     
-    public GManager(int userID) {
+    private User user;
+    
+    public GManager(User user) {
+        this.user = user;
+    }
+    
+    public User getUser() {
+        return user;
     }
 
     /**

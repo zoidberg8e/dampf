@@ -43,9 +43,13 @@ public final class DBConnector {
         return 1;
     }
     
-    public ImageIcon getUserImage(String username) {
+    public ImageIcon getUserImage(int userID) {
         return new ImageIcon();
-    } 
+    }
+    
+    public int getUserID(String username) {
+        return 12345;
+    }
     
     public boolean userExists(String name) {
         return true;
@@ -57,5 +61,9 @@ public final class DBConnector {
     
     public void createUser(String name, String password) {
         
+    }
+    
+    public String getUsername(int ID) {
+        return "Peter Müller";
     }
 }
