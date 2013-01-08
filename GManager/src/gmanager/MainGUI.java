@@ -3,12 +3,18 @@ package gmanager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,14 +25,16 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-public class MainGUI extends JFrame implements ActionListener {
+public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
     private JMenuItem exit;
     private JScrollPane myGames, profile, explorer, news;
-    private JPanel mainWindow;
+    private JPanel mainWindow, alignFriendsNorth;
     private JTextField searchFriends;
     private JButton addFriend, logout;
     private JTabbedPane tabbedPane;
@@ -60,7 +68,7 @@ public class MainGUI extends JFrame implements ActionListener {
         news = new JScrollPane();
         tabbedPane.addTab("News", news);
         
-        profile = new JScrollPane();
+        profile = new JScrollPane(createProfile(gameManager.getUser()));
         tabbedPane.addTab("My Profile", profile);
         
         myGames = new JScrollPane();
@@ -87,41 +95,52 @@ public class MainGUI extends JFrame implements ActionListener {
         logout.addActionListener(this);
         userControl.add(logout);
         
-        JPanel alignNorth = new JPanel();
-        alignNorth.setLayout(new BorderLayout());
+        alignFriendsNorth = new JPanel();
+        alignFriendsNorth.setLayout(new BorderLayout());
         
-        JPanel friends = new JPanel();
-        friends.setLayout(new GridBagLayout());
+        JPanel friends = createFriendPanel(gameManager.getUser().getFriends());
+        alignFriendsNorth.add(friends, BorderLayout.NORTH);
+        
+        JScrollPane friendsScrollPane = new JScrollPane(alignFriendsNorth);
+        friendsScrollPane.getVerticalScrollBar().setUnitIncrement(15);
+        east.add(friendsScrollPane, BorderLayout.CENTER);
+        
+        JPanel searchBorder = new JPanel();
+        searchBorder.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        east.add(searchBorder, BorderLayout.SOUTH);
+        
+        searchFriends = new JTextField(20);
+        searchFriends.addKeyListener(this);
+        searchFriends.setToolTipText("Search for a friend.");
+        searchBorder.add(searchFriends);
+        
+        setPreferredSize(new Dimension(640, 480));
+        pack();
+        setVisible(true);  
+    }
+    
+    public static JPanel createFriendPanel(User[] friends) {
+        JPanel container = new JPanel();
+        container.setLayout(new GridBagLayout());
+        
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridy = 0;
         c.insets = new Insets(2, 3, 0, 3);
-        JPanel[] friend = createFriendPanels();
-        for (JPanel panel : friend) {
-            friends.add(panel, c);
-            c.gridy++;
-        }
-        alignNorth.add(friends, BorderLayout.NORTH);
         
-        JScrollPane friendsScrollPane = new JScrollPane(alignNorth);
-        friendsScrollPane.getVerticalScrollBar().setUnitIncrement(15);
-        east.add(friendsScrollPane, BorderLayout.CENTER);
-        
-        searchFriends = new JTextField(20);
-        searchFriends.setToolTipText("Search for a friend.");
-        east.add(searchFriends, BorderLayout.SOUTH);
-        
-        pack();
-        setVisible(true);  
-    }
-    
-    public JPanel[] createFriendPanels() {
-        User[] friends = gameManager.getUser().getFriends();
-        JPanel[] panels = new JPanel[friends.length];
-        for (int i = 0; i < panels.length; i++) {
+        for (int i = 0; i < friends.length; i++) {
+            Color background;
             JPanel friend = new JPanel();
+            if (i % 2 == 0) {
+                background = new Color(220, 230, 255);
+            }
+            else {
+                background = new Color(190, 210, 255);
+            }
+            friend.setBackground(background);
             friend.setLayout(new BorderLayout());
+            friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             
             JPopupMenu friendMenu = new JPopupMenu();
             friendMenu.add(new JMenuItem("Show Profile"));
@@ -131,20 +150,42 @@ public class MainGUI extends JFrame implements ActionListener {
             JLabel friendThumbnail = new JLabel(friends[i].getUserImage());
             friendThumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             friend.add(friendThumbnail, BorderLayout.WEST);
-            
+                  
             JLabel friendName = new JLabel(friends[i].getUsername());
             friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
             friend.add(friendName, BorderLayout.CENTER);
             
-            friend.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
-            
-            panels[i] = friend;
+            container.add(friend, c);
+            c.gridy++;
         }
-        return panels;
+        return container;
     }
     
-    public void showProfile() {
-        mainWindow.removeAll();
+    public static JPanel createProfile(User user) {
+        JPanel profilePanel = new JPanel();
+        profilePanel.setLayout(new BorderLayout());
+        
+        JPanel topLine = new JPanel();
+        topLine.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
+        topLine.setLayout(new BorderLayout(8, 10));
+        profilePanel.add(topLine, BorderLayout.NORTH);
+        
+        JLabel userImage = new JLabel(user.getUserImage());
+        userImage.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 3));
+        topLine.add(userImage, BorderLayout.WEST);
+        
+        JLabel userName = new JLabel(user.getUsername());
+        Font f = userName.getFont();
+        Float s = f.getSize2D();
+        s += 12.0f;
+        userName.setFont(f.deriveFont(s));
+        userName.setVerticalAlignment(SwingConstants.BOTTOM);
+        topLine.add(userName, BorderLayout.CENTER);
+        
+        JSeparator sep = new JSeparator();
+        topLine.add(sep, BorderLayout.SOUTH);
+        
+        return profilePanel;
     }
     
     public void showMyGames() {
@@ -166,7 +207,7 @@ public class MainGUI extends JFrame implements ActionListener {
         searchPanel.setBorder(BorderFactory.createTitledBorder("Search"));
         topLine.add(searchPanel, BorderLayout.EAST);
         
-        JTextField search = new JTextField(20);
+        JTextField search = new JTextField(22);
         search.setToolTipText("Search for a game");
         searchPanel.add(search);
         
@@ -183,6 +224,35 @@ public class MainGUI extends JFrame implements ActionListener {
         if(e.getSource().equals(logout)) {
             dispose();
             new LoginScreen();
+        }
+    }
+    
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyPressed(KeyEvent e) {}
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if(e.getSource().equals(searchFriends)) {
+            if(e.getKeyCode() == 10) {
+                String keyword = searchFriends.getText();
+                alignFriendsNorth.removeAll();
+                User[] allFriends = gameManager.getUser().getFriends();
+                List<User> filtered = new ArrayList();
+                for (User u : allFriends) {
+                    String username = u.getUsername();
+                    if(username.toLowerCase().contains(keyword.toLowerCase())) {
+                        filtered.add(u);
+                    }
+                }
+                User[] filteredArray = filtered.toArray(new User[filtered.size()]);
+                JPanel friends = createFriendPanel(filteredArray);
+                alignFriendsNorth.add(friends, BorderLayout.NORTH);
+                alignFriendsNorth.revalidate();
+                alignFriendsNorth.repaint();
+            }
         }
     }
 }
