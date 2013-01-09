@@ -116,10 +116,10 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         
         setPreferredSize(new Dimension(640, 480));
         pack();
-        setVisible(true);  
+        setVisible(true);
     }
     
-    public static JPanel createFriendPanel(User[] friends) {
+    public JPanel createFriendPanel(User[] friends) {
         JPanel container = new JPanel();
         container.setLayout(new GridBagLayout());
         
@@ -143,7 +143,14 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             
             JPopupMenu friendMenu = new JPopupMenu();
-            friendMenu.add(new JMenuItem("Show Profile"));
+            JMenuItem showProfile =  new JMenuItem("Show Profile");
+            showProfile.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println(e.getSource());
+                }
+            });
+            friendMenu.add(showProfile);
             friendMenu.add(new JMenuItem("Chat"));
             friend.setComponentPopupMenu(friendMenu);
             

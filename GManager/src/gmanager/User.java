@@ -41,7 +41,7 @@ public class User {
     
     public User[] getFriends() {
         if (friends == null) {
-            friends = new User[20];
+            friends = new User[250];
             for (int i = 0; i < friends.length; i++) {
                 friends[i] = new User(i);
             }
