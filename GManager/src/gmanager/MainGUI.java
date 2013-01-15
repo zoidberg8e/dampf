@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -32,11 +32,11 @@ import javax.swing.SwingConstants;
 
 public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
-    private JMenuItem exit;
-    private JScrollPane myGames, profile, explorer, news;
-    private JPanel mainWindow, alignFriendsNorth;
+    private JMenuItem exit, logout;
+    private JScrollPane profile, explorer, news;
+    private JPanel alignFriendsNorth;
     private JTextField searchFriends;
-    private JButton addFriend, logout;
+    private JButton addFriend;
     private JTabbedPane tabbedPane;
     private GManager gameManager;
 
@@ -53,26 +53,30 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         JMenu file = new JMenu("File");
         menubar.add(file);
         
+        file.addSeparator();
+        
+        logout = new JMenuItem("Logout");
+        logout.setMnemonic('l');
+        logout.addActionListener(this);
+        file.add(logout);
+        
         exit = new JMenuItem("Exit");
         exit.setMnemonic('x');
         exit.addActionListener(this);
-        file.addSeparator();
         file.add(exit);
         
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
         
         tabbedPane = new JTabbedPane();
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         cp.add(tabbedPane, BorderLayout.CENTER);
         
         news = new JScrollPane();
         tabbedPane.addTab("News", news);
         
-        profile = new JScrollPane(createProfile(gameManager.getUser()));
+        profile = new JScrollPane(createProfilePanel(gameManager.getUser()));
         tabbedPane.addTab("My Profile", profile);
-        
-        myGames = new JScrollPane();
-        tabbedPane.addTab("My Games", myGames);
         
         explorer = new JScrollPane();
         tabbedPane.addTab("Game Explorer", explorer);
@@ -89,11 +93,6 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         addFriend.setToolTipText("Add a friend to your friendlist.");
         addFriend.addActionListener(this);
         userControl.add(addFriend);
-        
-        logout = new JButton("logout");
-        logout.setToolTipText("Logout");
-        logout.addActionListener(this);
-        userControl.add(logout);
         
         alignFriendsNorth = new JPanel();
         alignFriendsNorth.setLayout(new BorderLayout());
@@ -119,9 +118,9 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         setVisible(true);
     }
     
-    public JPanel createFriendPanel(User[] friends) {
-        JPanel container = new JPanel();
-        container.setLayout(new GridBagLayout());
+    private JPanel createFriendPanel(User[] friends) {
+        JPanel friendPanel = new JPanel();
+        friendPanel.setLayout(new GridBagLayout());
         
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -147,7 +146,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             showProfile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println(e.getSource());
+                    JComponent source = (JComponent) e.getSource();
                 }
             });
             friendMenu.add(showProfile);
@@ -162,13 +161,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
             friend.add(friendName, BorderLayout.CENTER);
             
-            container.add(friend, c);
+            friendPanel.add(friend, c);
             c.gridy++;
         }
-        return container;
+        return friendPanel;
     }
     
-    public static JPanel createProfile(User user) {
+    private JPanel createProfilePanel(User user) {
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BorderLayout());
         
@@ -195,32 +194,28 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         return profilePanel;
     }
     
-    public void showMyGames() {
-        mainWindow.removeAll();
+    private JPanel createExplorerPanel() {
+        JPanel explorerPanel = new JPanel();
+        return explorerPanel;
     }
     
-    public void showGameExplorer() {
-        mainWindow.removeAll();
-        
-        JPanel topLine = new JPanel();
-        topLine.setLayout(new BorderLayout());
-        mainWindow.add(topLine, BorderLayout.NORTH);
-        
-        JLabel gameExplorer = new JLabel("Game Explorer");
-        gameExplorer.setFont(gameExplorer.getFont().deriveFont(48));
-        topLine.add(gameExplorer, BorderLayout.WEST);
-        
-        JPanel searchPanel = new JPanel();
-        searchPanel.setBorder(BorderFactory.createTitledBorder("Search"));
-        topLine.add(searchPanel, BorderLayout.EAST);
-        
-        JTextField search = new JTextField(22);
-        search.setToolTipText("Search for a game");
-        searchPanel.add(search);
-        
-        JPanel mid = new JPanel();
-        mid.setLayout(new GridLayout(0, 2));
-        
+    private JPanel createGamePanel() {
+        JPanel gamePanel = new JPanel();
+        return gamePanel;
+    }
+    
+    private User[] search(String keyword, User[] users) {
+        if (keyword.equals("")) {
+            return users;
+        }
+        List<User> filtered = new ArrayList();
+        for (User u : users) {
+            String username = u.getUsername();
+            if(username.toLowerCase().contains(keyword.toLowerCase())) {
+                filtered.add(u);
+            }
+        }
+        return filtered.toArray(new User[filtered.size()]);
     }
     
     @Override
@@ -246,16 +241,8 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             if(e.getKeyCode() == 10) {
                 String keyword = searchFriends.getText();
                 alignFriendsNorth.removeAll();
-                User[] allFriends = gameManager.getUser().getFriends();
-                List<User> filtered = new ArrayList();
-                for (User u : allFriends) {
-                    String username = u.getUsername();
-                    if(username.toLowerCase().contains(keyword.toLowerCase())) {
-                        filtered.add(u);
-                    }
-                }
-                User[] filteredArray = filtered.toArray(new User[filtered.size()]);
-                JPanel friends = createFriendPanel(filteredArray);
+
+                JPanel friends = createFriendPanel(search(keyword, gameManager.getUser().getFriends()));
                 alignFriendsNorth.add(friends, BorderLayout.NORTH);
                 alignFriendsNorth.revalidate();
                 alignFriendsNorth.repaint();
