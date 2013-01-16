@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,21 +17,21 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
-public class MainGUI extends JFrame implements ActionListener, KeyListener {
+public class MainGUI extends JFrame implements ActionListener, KeyListener, PopupMenuListener {
     
     private JMenuItem exit, logout;
     private JScrollPane profile, explorer, news;
@@ -39,6 +40,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
     private JButton addFriend;
     private JTabbedPane tabbedPane;
     private GManager gameManager;
+    private User contextMenuUser;
 
     public MainGUI(GManager gm) {
         super("GManager");
@@ -141,12 +143,21 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             friend.setLayout(new BorderLayout());
             friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             
-            JPopupMenu friendMenu = new JPopupMenu();
+            UserPopupMenu friendMenu = new UserPopupMenu(friends[i]);
+            friendMenu.addPopupMenuListener(this);
             JMenuItem showProfile =  new JMenuItem("Show Profile");
             showProfile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JComponent source = (JComponent) e.getSource();
+                    for (int i = 3; i < tabbedPane.getTabCount(); i++) {
+                        if (tabbedPane.getTitleAt(i).equals(contextMenuUser.getUsername())) {
+                            tabbedPane.setSelectedIndex(i);
+                            return;
+                        }
+                    }
+                    tabbedPane.addTab(contextMenuUser.getUsername(), createProfilePanel(contextMenuUser));
+                    tabbedPane.setSelectedIndex(tabbedPane.getTabCount() -1);
+                    setClosable(tabbedPane.getTabCount() - 1);
                 }
             });
             friendMenu.add(showProfile);
@@ -204,6 +215,26 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         return gamePanel;
     }
     
+    private void setClosable(int i) {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        p.setOpaque(false);
+        JLabel text = new JLabel(tabbedPane.getTitleAt(i));
+        text.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        p.add(text);
+        TabCloseButton b = new TabCloseButton();
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TabCloseButton b = (TabCloseButton) e.getSource();
+                int i = tabbedPane.indexOfTabComponent(b.getParent());
+                tabbedPane.remove(i);
+            }
+        });
+        p.add(b);
+        tabbedPane.setTabComponentAt(i, p);
+    }
+    
     private User[] search(String keyword, User[] users) {
         if (keyword.equals("")) {
             return users;
@@ -249,4 +280,16 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             }
         }
     }
+    
+    @Override
+    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        UserPopupMenu u = (UserPopupMenu) e.getSource();
+        contextMenuUser = u.getUser();
+    }
+    
+    @Override
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+    
+    @Override
+    public void popupMenuCanceled(PopupMenuEvent e) {}
 }
