@@ -3,10 +3,6 @@ package gmanager;
 
 import javax.swing.JPopupMenu;
 
-/**
- *
- * @author patrick
- */
 public class UserPopupMenu extends JPopupMenu {
     
     private final User user;

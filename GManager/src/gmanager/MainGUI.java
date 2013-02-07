@@ -99,7 +99,8 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         alignFriendsNorth = new JPanel();
         alignFriendsNorth.setLayout(new BorderLayout());
         
-        JPanel friends = createFriendPanel(gameManager.getUser().getFriends());
+        User u = gameManager.getUser();
+        JPanel friends = createFriendPanel(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
         alignFriendsNorth.add(friends, BorderLayout.NORTH);
         
         JScrollPane friendsScrollPane = new JScrollPane(alignFriendsNorth);
@@ -120,15 +121,31 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         setVisible(true);
     }
     
-    private JPanel createFriendPanel(User[] friends) {
+    private JPanel createFriendPanel(User[] requests, User[] friends, User[] requested) {
         JPanel friendPanel = new JPanel();
         friendPanel.setLayout(new GridBagLayout());
+        
+        if (friends == null) {
+            return friendPanel;
+        }
         
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridy = 0;
+        c.insets = new Insets(0, 3, 5, 3);
+        
+        JLabel headerFriends = new JLabel("Friends:");
+        Font f = headerFriends.getFont();
+        Float s = f.getSize2D();
+        s += 6.0f;
+        headerFriends.setFont(f.deriveFont(s));
+        friendPanel.add(headerFriends, c);
+        c.gridy++;
+
+        friendPanel.add(new JSeparator(), c);
         c.insets = new Insets(2, 3, 0, 3);
+        c.gridy++;
         
         for (int i = 0; i < friends.length; i++) {
             Color background;
@@ -155,7 +172,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
                             return;
                         }
                     }
-                    tabbedPane.addTab(contextMenuUser.getUsername(), createProfilePanel(contextMenuUser));
+                    tabbedPane.addTab(contextMenuUser.getUsername(), new JScrollPane(createProfilePanel(contextMenuUser)));
                     tabbedPane.setSelectedIndex(tabbedPane.getTabCount() -1);
                     setClosable(tabbedPane.getTabCount() - 1);
                 }
@@ -273,8 +290,11 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
                 String keyword = searchFriends.getText();
                 alignFriendsNorth.removeAll();
 
-                JPanel friends = createFriendPanel(search(keyword, gameManager.getUser().getFriends()));
-                alignFriendsNorth.add(friends, BorderLayout.NORTH);
+                User[] requests = search(keyword, gameManager.getUser().getFriendRequests());
+                User[] friends = search(keyword, gameManager.getUser().getFriends());
+                User[] requested = search(keyword, gameManager.getUser().getUnansweredRequests());
+                JPanel friendPanel = createFriendPanel(requests, friends, requested);
+                alignFriendsNorth.add(friendPanel, BorderLayout.NORTH);
                 alignFriendsNorth.revalidate();
                 alignFriendsNorth.repaint();
             }

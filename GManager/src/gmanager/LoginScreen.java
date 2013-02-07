@@ -18,10 +18,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
-/**
- *
- * @author doldpa
- */
 public class LoginScreen extends JFrame implements ActionListener, KeyListener {
     
     private JButton login, register;
@@ -84,8 +80,8 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
     /**
      * 
      */
-    public boolean authenticate(String user, String password) {
-        return DBConnector.getInstance().checkLogin(user, password);
+    public boolean authenticate(String user, int hashPW) {
+        return DBConnector.getInstance().checkLogin(user, hashPW);
     }
     
     /**
@@ -96,9 +92,9 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
         password.setBorder(standardBorder);
 
         boolean valid = true;
-        String name = mail.getText();
+        String email = mail.getText();
         String pw = new String(password.getPassword());
-        if (name.equals("")) {
+        if (email.equals("")) {
             valid = false;
             mail.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
         }
@@ -107,9 +103,9 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
             password.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
         }
         if (valid) {
-            if (authenticate(name, pw)) {
+            if (authenticate(email, pw.hashCode())) {
                 dispose();
-                new MainGUI(new GManager(new User(DBConnector.getInstance().getUserID(name))));
+                new MainGUI(new GManager(new User(email)));
             }
             else {
                 JOptionPane.showMessageDialog(null, "Invalid username or password.", "Access denied", JOptionPane.ERROR_MESSAGE);

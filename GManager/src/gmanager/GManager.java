@@ -2,10 +2,6 @@ package gmanager;
 
 import javax.swing.SwingUtilities;
 
-/**
- *
- * @author doldpa
- */
 public class GManager {
     
     private User user;

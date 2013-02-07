@@ -19,10 +19,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-/**
- *
- * @author patrick
- */
 public class TabCloseButton extends JButton{
 
     public TabCloseButton() {

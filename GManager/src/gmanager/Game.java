@@ -2,10 +2,6 @@ package gmanager;
 
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author patrick
- */
 public class Game {
     
     private final int ID;

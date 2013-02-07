@@ -1,34 +1,27 @@
 
 package gmanager;
 
-import java.util.Random;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author patrick
- */
 public class User {
     
-    private final int ID;
+    private final String email;
     private final String username;
-    private User[] friends = null;
+    private User[] friends;
+    private User[] friendRequests;
+    private User[] unansweredRequests;
     
-    public User(int ID) {
-        this.ID = ID;
-        char[] text = new char[16];
-        Random rnd = new Random();
-        String characters = new String("AaBbCcDdEeFf");
-        for (int i = 0; i < 16; i++)
-        {
-            text[i] = characters.charAt(rnd.nextInt(characters.length()));
-        }
-        
-        this.username = new String(text);
+    public User(String email) {
+        this.email = email;
+        this.username = DBConnector.getInstance().getUsername(email);
     }
     
-    public int getUserID() {
-        return ID;
+    public void update() {
+        
+    }
+    
+    public String getEmail() {
+        return email;
     }
     
     public String getUsername() {
@@ -36,16 +29,27 @@ public class User {
     }
     
     public ImageIcon getUserImage() {
-        return new ImageIcon("/home/patrick/Downloads/Sil.jpeg");
+        return new ImageIcon("sil.jpeg");
     }
     
     public User[] getFriends() {
         if (friends == null) {
-            friends = new User[250];
-            for (int i = 0; i < friends.length; i++) {
-                friends[i] = new User(i);
-            }
+            friends = DBConnector.getInstance().getFriends(email);
         }
         return friends;
+    }
+    
+    public User[] getFriendRequests() {
+        if (friendRequests == null) {
+            friendRequests = DBConnector.getInstance().getFriendRequests(email);
+        }
+        return friendRequests;
+    }
+    
+    public User[] getUnansweredRequests() {
+        if (unansweredRequests == null) {
+            unansweredRequests = DBConnector.getInstance().getUnansweredRequests(email);
+        }
+        return unansweredRequests;
     }
 }
