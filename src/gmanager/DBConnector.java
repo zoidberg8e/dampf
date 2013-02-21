@@ -20,12 +20,12 @@ public final class DBConnector {
         Properties props = new Properties();
         props.setProperty("user", "projekt");
         props.setProperty("password", "geheim");
-        props.setProperty("ssl","true");
+        //props.setProperty("ssl","true");
         
         try {
             con = DriverManager.getConnection(url, props);
         } catch (SQLException ex) {
-            
+            System.out.println(ex.getMessage());
         }
     }
     

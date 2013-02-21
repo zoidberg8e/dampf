@@ -125,20 +125,51 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         JPanel friendPanel = new JPanel();
         friendPanel.setLayout(new GridBagLayout());
         
-        if (friends == null) {
-            return friendPanel;
-        }
-        
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridy = 0;
         c.insets = new Insets(0, 3, 5, 3);
         
-        JLabel headerFriends = new JLabel("Friends:");
-        Font f = headerFriends.getFont();
+        JLabel headerRequests = new JLabel("Friend Requests:");
+        Font f = headerRequests.getFont();
         Float s = f.getSize2D();
         s += 6.0f;
+        headerRequests.setFont(f.deriveFont(s));
+        friendPanel.add(headerRequests, c);
+        c.gridy++;
+
+        friendPanel.add(new JSeparator(), c);
+        c.insets = new Insets(2, 3, 0, 3);
+        c.gridy++;
+        
+        for (int i = 0; i < requests.length; i++) {
+            Color background;
+            JPanel request = new JPanel();
+            if (i % 2 == 0) {
+                background = new Color(220, 230, 255);
+            }
+            else {
+                background = new Color(190, 210, 255);
+            }
+            request.setBackground(background);
+            request.setLayout(new BorderLayout());
+            request.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            
+            JLabel thumbnail = new JLabel(friends[i].getUserImage());
+            thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            request.add(thumbnail, BorderLayout.WEST);
+                  
+            JLabel friendName = new JLabel(friends[i].getUsername());
+            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+            request.add(friendName, BorderLayout.CENTER);
+            
+            friendPanel.add(request, c);
+            c.gridy++;
+            
+        }
+        
+        JLabel headerFriends = new JLabel("Friends:");
         headerFriends.setFont(f.deriveFont(s));
         friendPanel.add(headerFriends, c);
         c.gridy++;
@@ -192,6 +223,41 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
             friendPanel.add(friend, c);
             c.gridy++;
         }
+        
+        JLabel headerRequested = new JLabel("Requested Friends:");
+        headerRequested.setFont(f.deriveFont(s));
+        friendPanel.add(headerRequested, c);
+        c.gridy++;
+
+        friendPanel.add(new JSeparator(), c);
+        c.insets = new Insets(2, 3, 0, 3);
+        c.gridy++;
+        
+        for (int i = 0; i < requested.length; i++) {
+            Color background;
+            JPanel requestedFriends = new JPanel();
+            if (i % 2 == 0) {
+                background = new Color(220, 230, 255);
+            }
+            else {
+                background = new Color(190, 210, 255);
+            }
+            requestedFriends.setBackground(background);
+            requestedFriends.setLayout(new BorderLayout());
+            requestedFriends.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            
+            JLabel thumbnail = new JLabel(friends[i].getUserImage());
+            thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            requestedFriends.add(thumbnail, BorderLayout.WEST);
+                  
+            JLabel friendName = new JLabel(friends[i].getUsername());
+            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+            requestedFriends.add(friendName, BorderLayout.CENTER);
+            
+            friendPanel.add(requestedFriends, c);
+            c.gridy++;
+        }
+        
         return friendPanel;
     }
     
