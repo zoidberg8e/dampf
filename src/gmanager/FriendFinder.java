@@ -1,6 +1,7 @@
 package gmanager;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -13,29 +14,33 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author doldpa
  */
-public class FriendFinder {
+public class FriendFinder extends JFrame {
     
     private JTextField searchField;
     private JButton check, add, cancel;
+    private Border standardBorder;
+    private JTable found;
+    private DefaultTableModel model;
+    private GManager gManager;
     
-    public FriendFinder() {
+    public FriendFinder(GManager gameManager) {
         
-    }
-    
-    public void drawGUI() {
-        
-        JFrame friendFinder = new JFrame("Friend Finder");
-        friendFinder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        friendFinder.setResizable(false);
+        super("Friend Finder");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setResizable(false);
         
         JPanel content = new JPanel();
         content.setLayout(new BorderLayout());
-        friendFinder.add(content);
+        add(content);
         
         JPanel north = new JPanel();
         north.setBorder(BorderFactory.createTitledBorder("Enter E-Mail address or username"));
@@ -43,13 +48,14 @@ public class FriendFinder {
         content.add(north, BorderLayout.NORTH);
         
         searchField = new JTextField(40);
+        standardBorder = searchField.getBorder();
         north.add(searchField, BorderLayout.CENTER);
         
         check = new JButton("Check");
         check.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                checkUsers();
             }
         });
         
@@ -57,9 +63,27 @@ public class FriendFinder {
         
         String[] columnNames = {"Username", "E-Mail"};
         
-        JTable found = new JTable();
-        found.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        model = new DefaultTableModel(columnNames, 0);
         
+        
+        found = new JTable(model);
+        found.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        ListSelectionModel selectionModel = found.getSelectionModel();
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if(!e.getValueIsAdjusting()) {
+                    ListSelectionModel sm = (ListSelectionModel) e.getSource();
+                    if(sm.getMinSelectionIndex() == -1) {
+                        add.setEnabled(false);
+                    }
+                    else {
+                        add.setEnabled(true);
+                    }
+                }
+            }
+        });
+  
         JScrollPane scroll = new JScrollPane(found);
         scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, 150));
         content.add(scroll, BorderLayout.CENTER);
@@ -74,10 +98,13 @@ public class FriendFinder {
         south.add(southEast, BorderLayout.EAST);
         
         add = new JButton("Add");
+        add.setEnabled(false);
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                int index = found.getSelectedRow();
+                User requested = new User((String) found.getValueAt(index, 1));
+                addFriend(requested);
             }
         });
         southEast.add(add);
@@ -86,12 +113,36 @@ public class FriendFinder {
         cancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                dispose();
             }
         });
         southEast.add(cancel);
+        pack();
         
-        friendFinder.pack();
-        friendFinder.setVisible(true);
+        this.gManager = gameManager;
+    }
+    
+    private void addFriend(User requested) {
+        
+        User requestor = gManager.getUser();
+        DBConnector.getInstance().requestFriend(requestor, requested);
+    }
+    
+    private void checkUsers() {
+        model.setRowCount(0);
+        String text = searchField.getText();
+        if(text.equals("")) {
+            searchField.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+        }
+        else {
+            searchField.setBorder(standardBorder);
+            User[] result = DBConnector.getInstance().searchUsers(text);
+            
+            for (User user : result) {
+                String[] rowData = {user.getUsername(), user.getEmail()};
+
+                model.addRow(rowData);
+            }
+        }
     }
 }

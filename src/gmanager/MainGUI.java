@@ -41,6 +41,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
     private JTabbedPane tabbedPane;
     private GManager gameManager;
     private User contextMenuUser;
+    private FriendFinder friendFinder;
 
     public MainGUI(GManager gm) {
         super("GManager");
@@ -342,8 +343,15 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
             new LoginScreen();
         }
         else if(e.getSource().equals(addFriend)) {
-            FriendFinder ff = new FriendFinder();
-            ff.drawGUI();
+            if(friendFinder == null) {
+                friendFinder = new FriendFinder(gameManager);
+            }
+            if(!friendFinder.isVisible()) {
+                friendFinder.setVisible(true);
+            }
+            else {
+                friendFinder.toFront();
+            }
         }
     }
     

@@ -115,7 +115,7 @@ public final class DBConnector {
                 String statement = "INSERT INTO benutzer(email, name, passwort) " + 
                         "VALUES('" + email + "', '" + name + "', '" + password.hashCode() + "')";
                 Statement st = con.createStatement();
-                st.executeQuery(statement);
+                st.executeUpdate(statement);
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
@@ -225,5 +225,33 @@ public final class DBConnector {
             System.out.println(ex.getMessage());
         }
         return friends.toArray(new User[friends.size()]);
+    }
+    
+    public User[] searchUsers(String searchText) {
+        List<User> result = new ArrayList();
+        try {
+            String statement = "SELECT email FROM benutzer WHERE name LIKE '%" + searchText + "%' OR email LIKE '%" + searchText + "%'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            while (rs.next()) {
+                String email = rs.getString(1);
+                result.add(new User(email));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return result.toArray(new User[result.size()]);
+    }
+    
+    public void requestFriend(User requestor, User requested) {
+        try {
+                String statement = "INSERT INTO freundschaft(benutzer1, benutzer2) " + 
+                        "VALUES('" + requestor.getEmail() + "', '" + requested.getEmail() + "')";
+                Statement st = con.createStatement();
+                st.executeUpdate(statement);
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
     }
 }
