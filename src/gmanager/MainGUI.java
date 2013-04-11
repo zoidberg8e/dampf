@@ -337,9 +337,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         if(e.getSource().equals(exit)) {
             System.exit(0);
         }
-        if(e.getSource().equals(logout)) {
+        else if(e.getSource().equals(logout)) {
             dispose();
             new LoginScreen();
+        }
+        else if(e.getSource().equals(addFriend)) {
+            FriendFinder ff = new FriendFinder();
+            ff.drawGUI();
         }
     }
     
