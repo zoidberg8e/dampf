@@ -18,6 +18,7 @@ public class InfoTextField extends JTextField implements FocusListener {
         addFocusListener(this);
         isEmpty = true;
         this.infoText = infoText;
+        showInfo();
     }
     
     public boolean isEmpty() {
@@ -42,12 +43,12 @@ public class InfoTextField extends JTextField implements FocusListener {
         }
     }
     
-    public void showInfo() {
+    private void showInfo() {
         setText(infoText);
         setForeground(Color.GRAY);
     }
     
-    public void hideInfo() {
+    private void hideInfo() {
         setText("");
         setForeground(Color.BLACK);
     }

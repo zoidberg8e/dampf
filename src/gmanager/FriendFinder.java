@@ -30,9 +30,9 @@ public class FriendFinder extends JFrame {
     private Border standardBorder;
     private JTable found;
     private DefaultTableModel model;
-    private GManager gManager;
+    private MainGUI mainGUI;
     
-    public FriendFinder(GManager gameManager) {
+    public FriendFinder(MainGUI mainGUI) {
         
         super("Friend Finder");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -119,13 +119,14 @@ public class FriendFinder extends JFrame {
         southEast.add(cancel);
         pack();
         
-        this.gManager = gameManager;
+        this.mainGUI = mainGUI;
     }
     
     private void addFriend(User requested) {
         
-        User requestor = gManager.getUser();
+        User requestor = mainGUI.getGManager().getUser();
         DBConnector.getInstance().requestFriend(requestor, requested);
+        mainGUI.updateFriendPanel();
     }
     
     private void checkUsers() {

@@ -245,13 +245,30 @@ public final class DBConnector {
     }
     
     public void requestFriend(User requestor, User requested) {
+        
+        String mail1 = requestor.getEmail();
+        String mail2 = requested.getEmail();
+        
         try {
-                String statement = "INSERT INTO freundschaft(benutzer1, benutzer2) " + 
-                        "VALUES('" + requestor.getEmail() + "', '" + requested.getEmail() + "')";
-                Statement st = con.createStatement();
-                st.executeUpdate(statement);
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+            String statement = "SELECT * FROM freundschaft WHERE benutzer1 = '" +
+                    mail1 + "' AND benutzer2 = '" + mail2 + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if(rs.next()) {
+                return;
             }
+        } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+        }
+        
+        try {
+            String statement = "INSERT INTO freundschaft(benutzer1, benutzer2) " + 
+                    "VALUES('" + mail1 + "', '" + mail2 + "')";
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }

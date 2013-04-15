@@ -112,9 +112,8 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         searchBorder.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         east.add(searchBorder, BorderLayout.SOUTH);
         
-        searchFriends = new JTextField(20);
+        searchFriends = new InfoTextField(20, "Search your friendlist");
         searchFriends.addKeyListener(this);
-        searchFriends.setToolTipText("Search for a friend.");
         searchBorder.add(searchFriends);
         
         setPreferredSize(new Dimension(640, 480));
@@ -130,7 +129,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridy = 0;
-        c.insets = new Insets(0, 3, 5, 3);
+        c.insets = new Insets(2, 3, 0, 3);
         
         JLabel headerRequests = new JLabel("Friend Requests:");
         Font f = headerRequests.getFont();
@@ -141,7 +140,6 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         c.gridy++;
 
         friendPanel.add(new JSeparator(), c);
-        c.insets = new Insets(2, 3, 0, 3);
         c.gridy++;
         
         for (int i = 0; i < requests.length; i++) {
@@ -157,11 +155,11 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
             request.setLayout(new BorderLayout());
             request.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             
-            JLabel thumbnail = new JLabel(friends[i].getUserImage());
+            JLabel thumbnail = new JLabel(requests[i].getUserImage());
             thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             request.add(thumbnail, BorderLayout.WEST);
                   
-            JLabel friendName = new JLabel(friends[i].getUsername());
+            JLabel friendName = new JLabel(requests[i].getUsername());
             friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
             request.add(friendName, BorderLayout.CENTER);
             
@@ -176,7 +174,6 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         c.gridy++;
 
         friendPanel.add(new JSeparator(), c);
-        c.insets = new Insets(2, 3, 0, 3);
         c.gridy++;
         
         for (int i = 0; i < friends.length; i++) {
@@ -231,7 +228,6 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         c.gridy++;
 
         friendPanel.add(new JSeparator(), c);
-        c.insets = new Insets(2, 3, 0, 3);
         c.gridy++;
         
         for (int i = 0; i < requested.length; i++) {
@@ -247,11 +243,11 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
             requestedFriends.setLayout(new BorderLayout());
             requestedFriends.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             
-            JLabel thumbnail = new JLabel(friends[i].getUserImage());
+            JLabel thumbnail = new JLabel(requested[i].getUserImage());
             thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             requestedFriends.add(thumbnail, BorderLayout.WEST);
                   
-            JLabel friendName = new JLabel(friends[i].getUsername());
+            JLabel friendName = new JLabel(requested[i].getUsername());
             friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
             requestedFriends.add(friendName, BorderLayout.CENTER);
             
@@ -333,6 +329,20 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         return filtered.toArray(new User[filtered.size()]);
     }
     
+    public GManager getGManager() {
+        return gameManager;
+    }
+    
+    public void updateFriendPanel() {
+        User u = gameManager.getUser();
+        u.update();
+        
+        alignFriendsNorth.removeAll();
+        alignFriendsNorth.add(createFriendPanel(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests()), BorderLayout.NORTH);
+        alignFriendsNorth.revalidate();
+        alignFriendsNorth.repaint();
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(exit)) {
@@ -344,7 +354,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         }
         else if(e.getSource().equals(addFriend)) {
             if(friendFinder == null) {
-                friendFinder = new FriendFinder(gameManager);
+                friendFinder = new FriendFinder(this);
             }
             if(!friendFinder.isVisible()) {
                 friendFinder.setVisible(true);

@@ -17,7 +17,9 @@ public class User {
     }
     
     public void update() {
-        
+        friends = DBConnector.getInstance().getFriends(email);
+        friendRequests = DBConnector.getInstance().getFriendRequests(email);
+        unansweredRequests = DBConnector.getInstance().getUnansweredRequests(email);
     }
     
     public String getEmail() {
