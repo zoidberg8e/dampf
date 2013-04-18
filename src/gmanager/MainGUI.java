@@ -6,9 +6,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -28,10 +25,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
-public class MainGUI extends JFrame implements ActionListener, KeyListener, PopupMenuListener {
+public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
     private JMenuItem exit, logout;
     private JScrollPane profile, explorer, news;
@@ -109,7 +104,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         alignFriendsNorth.setLayout(new BorderLayout());
         
         User u = gameManager.getUser();
-        JPanel friends = createFriendPanel(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
+        JPanel friends = new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
         alignFriendsNorth.add(friends, BorderLayout.NORTH);
         
         JScrollPane friendsScrollPane = new JScrollPane(alignFriendsNorth);
@@ -120,154 +115,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         searchBorder.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         east.add(searchBorder, BorderLayout.SOUTH);
         
-        searchFriends = new InfoTextField(20, "Search your friendlist");
+        searchFriends = new InfoTextField(22, "Search your friendlist");
         searchFriends.addKeyListener(this);
         searchBorder.add(searchFriends);
         
         setPreferredSize(new Dimension(640, 480));
         pack();
         setVisible(true);
-    }
-    
-    private JPanel createFriendPanel(User[] requests, User[] friends, User[] requested) {
-        JPanel friendPanel = new JPanel();
-        friendPanel.setLayout(new GridBagLayout());
-        
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-        c.gridy = 0;
-        c.insets = new Insets(2, 3, 0, 3);
-        
-        if(requests.length != 0) {
-            JLabel headerRequests = new JLabel("Friend Requests:");
-            friendPanel.add(headerRequests, c);
-            c.gridy++;
-
-            friendPanel.add(new JSeparator(), c);
-            c.gridy++;
-        
-            for (int i = 0; i < requests.length; i++) {
-                Color background;
-                JPanel request = new JPanel();
-                if (i % 2 == 0) {
-                    background = new Color(220, 230, 255);
-                }
-                else {
-                    background = new Color(190, 210, 255);
-                }
-                request.setBackground(background);
-                request.setLayout(new BorderLayout());
-                request.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-                JLabel thumbnail = new JLabel(requests[i].getUserImage());
-                thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                request.add(thumbnail, BorderLayout.WEST);
-
-                JLabel friendName = new JLabel(requests[i].getUsername());
-                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-                request.add(friendName, BorderLayout.CENTER);
-
-                friendPanel.add(request, c);
-                c.gridy++;
-            }
-            c.insets = new Insets(15, 3, 0, 3);
-        }
-        
-        
-        if(friends.length != 0) {
-            JLabel headerFriends = new JLabel("Friends:");
-            friendPanel.add(headerFriends, c);
-            c.gridy++;
-            c.insets = new Insets(2, 3, 0, 3);
-
-            friendPanel.add(new JSeparator(), c);
-            c.gridy++;
-        
-            for (int i = 0; i < friends.length; i++) {
-                Color background;
-                JPanel friend = new JPanel();
-                if (i % 2 == 0) {
-                    background = new Color(220, 230, 255);
-                }
-                else {
-                    background = new Color(190, 210, 255);
-                }
-                friend.setBackground(background);
-                friend.setLayout(new BorderLayout());
-                friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-                UserPopupMenu friendMenu = new UserPopupMenu(friends[i]);
-                friendMenu.addPopupMenuListener(this);
-                JMenuItem showProfile =  new JMenuItem("Show Profile");
-                showProfile.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        for (int i = 3; i < tabbedPane.getTabCount(); i++) {
-                            if (tabbedPane.getTitleAt(i).equals(contextMenuUser.getUsername())) {
-                                tabbedPane.setSelectedIndex(i);
-                                return;
-                            }
-                        }
-                        tabbedPane.addTab(contextMenuUser.getUsername(), new JScrollPane(createProfilePanel(contextMenuUser)));
-                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() -1);
-                        setClosable(tabbedPane.getTabCount() - 1);
-                    }
-                });
-                friendMenu.add(showProfile);
-                friendMenu.add(new JMenuItem("Chat"));
-                friend.setComponentPopupMenu(friendMenu);
-
-                JLabel friendThumbnail = new JLabel(friends[i].getUserImage());
-                friendThumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                friend.add(friendThumbnail, BorderLayout.WEST);
-
-                JLabel friendName = new JLabel(friends[i].getUsername());
-                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-                friend.add(friendName, BorderLayout.CENTER);
-
-                friendPanel.add(friend, c);
-                c.gridy++;
-            }
-            c.insets = new Insets(15, 3, 0, 3);
-        }
-        
-        if(requested.length != 0) {
-            JLabel headerRequested = new JLabel("Requested Friends:");
-            friendPanel.add(headerRequested, c);
-            c.gridy++;
-            c.insets = new Insets(2, 3, 0, 3);
-            
-            friendPanel.add(new JSeparator(), c);
-            c.gridy++;
-        
-            for (int i = 0; i < requested.length; i++) {
-                Color background;
-                JPanel requestedFriends = new JPanel();
-                if (i % 2 == 0) {
-                    background = new Color(220, 230, 255);
-                }
-                else {
-                    background = new Color(190, 210, 255);
-                }
-                requestedFriends.setBackground(background);
-                requestedFriends.setLayout(new BorderLayout());
-                requestedFriends.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-                JLabel thumbnail = new JLabel(requested[i].getUserImage());
-                thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                requestedFriends.add(thumbnail, BorderLayout.WEST);
-
-                JLabel friendName = new JLabel(requested[i].getUsername());
-                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-                requestedFriends.add(friendName, BorderLayout.CENTER);
-
-                friendPanel.add(requestedFriends, c);
-                c.gridy++;
-            }
-        }
-        
-        return friendPanel;
     }
     
     private JPanel createProfilePanel(User user) {
@@ -350,7 +204,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         u.update();
         
         alignFriendsNorth.removeAll();
-        alignFriendsNorth.add(createFriendPanel(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests()), BorderLayout.NORTH);
+        alignFriendsNorth.add(new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests()), BorderLayout.NORTH);
         alignFriendsNorth.revalidate();
         alignFriendsNorth.repaint();
     }
@@ -393,23 +247,11 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
                 User[] requests = search(keyword, gameManager.getUser().getFriendRequests());
                 User[] friends = search(keyword, gameManager.getUser().getFriends());
                 User[] requested = search(keyword, gameManager.getUser().getUnansweredRequests());
-                JPanel friendPanel = createFriendPanel(requests, friends, requested);
+                JPanel friendPanel = new FriendList(requests, friends, requested);
                 alignFriendsNorth.add(friendPanel, BorderLayout.NORTH);
                 alignFriendsNorth.revalidate();
                 alignFriendsNorth.repaint();
             }
         }
     }
-    
-    @Override
-    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        UserPopupMenu u = (UserPopupMenu) e.getSource();
-        contextMenuUser = u.getUser();
-    }
-    
-    @Override
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
-    
-    @Override
-    public void popupMenuCanceled(PopupMenuEvent e) {}
 }
