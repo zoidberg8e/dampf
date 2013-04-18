@@ -88,14 +88,22 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         east.setLayout(new BorderLayout());
         cp.add(east, BorderLayout.EAST);
         
-        JPanel userControl = new JPanel();
-        userControl.setAlignmentX(0);
-        east.add(userControl, BorderLayout.NORTH);
+        JPanel friendListHeaderPanel = new JPanel();
+        friendListHeaderPanel.setBorder(BorderFactory.createEmptyBorder(5, 2, 5, 5));
+        friendListHeaderPanel.setLayout(new BorderLayout());
+        east.add(friendListHeaderPanel, BorderLayout.NORTH);
+        
+        JLabel friendListHeader = new JLabel("Friendlist");
+        Font f = friendListHeader.getFont();
+        Float s = f.getSize2D();
+        s += 6.0f;
+        friendListHeader.setFont(f.deriveFont(s));
+        friendListHeaderPanel.add(friendListHeader, BorderLayout.CENTER);
         
         addFriend = new JButton("add");
         addFriend.setToolTipText("Add a friend to your friendlist.");
         addFriend.addActionListener(this);
-        userControl.add(addFriend);
+        friendListHeaderPanel.add(addFriend, BorderLayout.EAST);
         
         alignFriendsNorth = new JPanel();
         alignFriendsNorth.setLayout(new BorderLayout());
@@ -131,128 +139,132 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Popu
         c.gridy = 0;
         c.insets = new Insets(2, 3, 0, 3);
         
-        JLabel headerRequests = new JLabel("Friend Requests:");
-        Font f = headerRequests.getFont();
-        Float s = f.getSize2D();
-        s += 6.0f;
-        headerRequests.setFont(f.deriveFont(s));
-        friendPanel.add(headerRequests, c);
-        c.gridy++;
-
-        friendPanel.add(new JSeparator(), c);
-        c.gridy++;
-        
-        for (int i = 0; i < requests.length; i++) {
-            Color background;
-            JPanel request = new JPanel();
-            if (i % 2 == 0) {
-                background = new Color(220, 230, 255);
-            }
-            else {
-                background = new Color(190, 210, 255);
-            }
-            request.setBackground(background);
-            request.setLayout(new BorderLayout());
-            request.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            
-            JLabel thumbnail = new JLabel(requests[i].getUserImage());
-            thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            request.add(thumbnail, BorderLayout.WEST);
-                  
-            JLabel friendName = new JLabel(requests[i].getUsername());
-            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-            request.add(friendName, BorderLayout.CENTER);
-            
-            friendPanel.add(request, c);
+        if(requests.length != 0) {
+            JLabel headerRequests = new JLabel("Friend Requests:");
+            friendPanel.add(headerRequests, c);
             c.gridy++;
-            
-        }
-        
-        JLabel headerFriends = new JLabel("Friends:");
-        headerFriends.setFont(f.deriveFont(s));
-        friendPanel.add(headerFriends, c);
-        c.gridy++;
 
-        friendPanel.add(new JSeparator(), c);
-        c.gridy++;
+            friendPanel.add(new JSeparator(), c);
+            c.gridy++;
         
-        for (int i = 0; i < friends.length; i++) {
-            Color background;
-            JPanel friend = new JPanel();
-            if (i % 2 == 0) {
-                background = new Color(220, 230, 255);
-            }
-            else {
-                background = new Color(190, 210, 255);
-            }
-            friend.setBackground(background);
-            friend.setLayout(new BorderLayout());
-            friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            
-            UserPopupMenu friendMenu = new UserPopupMenu(friends[i]);
-            friendMenu.addPopupMenuListener(this);
-            JMenuItem showProfile =  new JMenuItem("Show Profile");
-            showProfile.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    for (int i = 3; i < tabbedPane.getTabCount(); i++) {
-                        if (tabbedPane.getTitleAt(i).equals(contextMenuUser.getUsername())) {
-                            tabbedPane.setSelectedIndex(i);
-                            return;
-                        }
-                    }
-                    tabbedPane.addTab(contextMenuUser.getUsername(), new JScrollPane(createProfilePanel(contextMenuUser)));
-                    tabbedPane.setSelectedIndex(tabbedPane.getTabCount() -1);
-                    setClosable(tabbedPane.getTabCount() - 1);
+            for (int i = 0; i < requests.length; i++) {
+                Color background;
+                JPanel request = new JPanel();
+                if (i % 2 == 0) {
+                    background = new Color(220, 230, 255);
                 }
-            });
-            friendMenu.add(showProfile);
-            friendMenu.add(new JMenuItem("Chat"));
-            friend.setComponentPopupMenu(friendMenu);
-            
-            JLabel friendThumbnail = new JLabel(friends[i].getUserImage());
-            friendThumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            friend.add(friendThumbnail, BorderLayout.WEST);
-                  
-            JLabel friendName = new JLabel(friends[i].getUsername());
-            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-            friend.add(friendName, BorderLayout.CENTER);
-            
-            friendPanel.add(friend, c);
-            c.gridy++;
+                else {
+                    background = new Color(190, 210, 255);
+                }
+                request.setBackground(background);
+                request.setLayout(new BorderLayout());
+                request.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+                JLabel thumbnail = new JLabel(requests[i].getUserImage());
+                thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                request.add(thumbnail, BorderLayout.WEST);
+
+                JLabel friendName = new JLabel(requests[i].getUsername());
+                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+                request.add(friendName, BorderLayout.CENTER);
+
+                friendPanel.add(request, c);
+                c.gridy++;
+            }
+            c.insets = new Insets(15, 3, 0, 3);
         }
         
-        JLabel headerRequested = new JLabel("Requested Friends:");
-        headerRequested.setFont(f.deriveFont(s));
-        friendPanel.add(headerRequested, c);
-        c.gridy++;
-
-        friendPanel.add(new JSeparator(), c);
-        c.gridy++;
         
-        for (int i = 0; i < requested.length; i++) {
-            Color background;
-            JPanel requestedFriends = new JPanel();
-            if (i % 2 == 0) {
-                background = new Color(220, 230, 255);
-            }
-            else {
-                background = new Color(190, 210, 255);
-            }
-            requestedFriends.setBackground(background);
-            requestedFriends.setLayout(new BorderLayout());
-            requestedFriends.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            
-            JLabel thumbnail = new JLabel(requested[i].getUserImage());
-            thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            requestedFriends.add(thumbnail, BorderLayout.WEST);
-                  
-            JLabel friendName = new JLabel(requested[i].getUsername());
-            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-            requestedFriends.add(friendName, BorderLayout.CENTER);
-            
-            friendPanel.add(requestedFriends, c);
+        if(friends.length != 0) {
+            JLabel headerFriends = new JLabel("Friends:");
+            friendPanel.add(headerFriends, c);
             c.gridy++;
+            c.insets = new Insets(2, 3, 0, 3);
+
+            friendPanel.add(new JSeparator(), c);
+            c.gridy++;
+        
+            for (int i = 0; i < friends.length; i++) {
+                Color background;
+                JPanel friend = new JPanel();
+                if (i % 2 == 0) {
+                    background = new Color(220, 230, 255);
+                }
+                else {
+                    background = new Color(190, 210, 255);
+                }
+                friend.setBackground(background);
+                friend.setLayout(new BorderLayout());
+                friend.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+                UserPopupMenu friendMenu = new UserPopupMenu(friends[i]);
+                friendMenu.addPopupMenuListener(this);
+                JMenuItem showProfile =  new JMenuItem("Show Profile");
+                showProfile.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int i = 3; i < tabbedPane.getTabCount(); i++) {
+                            if (tabbedPane.getTitleAt(i).equals(contextMenuUser.getUsername())) {
+                                tabbedPane.setSelectedIndex(i);
+                                return;
+                            }
+                        }
+                        tabbedPane.addTab(contextMenuUser.getUsername(), new JScrollPane(createProfilePanel(contextMenuUser)));
+                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() -1);
+                        setClosable(tabbedPane.getTabCount() - 1);
+                    }
+                });
+                friendMenu.add(showProfile);
+                friendMenu.add(new JMenuItem("Chat"));
+                friend.setComponentPopupMenu(friendMenu);
+
+                JLabel friendThumbnail = new JLabel(friends[i].getUserImage());
+                friendThumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                friend.add(friendThumbnail, BorderLayout.WEST);
+
+                JLabel friendName = new JLabel(friends[i].getUsername());
+                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+                friend.add(friendName, BorderLayout.CENTER);
+
+                friendPanel.add(friend, c);
+                c.gridy++;
+            }
+            c.insets = new Insets(15, 3, 0, 3);
+        }
+        
+        if(requested.length != 0) {
+            JLabel headerRequested = new JLabel("Requested Friends:");
+            friendPanel.add(headerRequested, c);
+            c.gridy++;
+            c.insets = new Insets(2, 3, 0, 3);
+            
+            friendPanel.add(new JSeparator(), c);
+            c.gridy++;
+        
+            for (int i = 0; i < requested.length; i++) {
+                Color background;
+                JPanel requestedFriends = new JPanel();
+                if (i % 2 == 0) {
+                    background = new Color(220, 230, 255);
+                }
+                else {
+                    background = new Color(190, 210, 255);
+                }
+                requestedFriends.setBackground(background);
+                requestedFriends.setLayout(new BorderLayout());
+                requestedFriends.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+                JLabel thumbnail = new JLabel(requested[i].getUserImage());
+                thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                requestedFriends.add(thumbnail, BorderLayout.WEST);
+
+                JLabel friendName = new JLabel(requested[i].getUsername());
+                friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+                requestedFriends.add(friendName, BorderLayout.CENTER);
+
+                friendPanel.add(requestedFriends, c);
+                c.gridy++;
+            }
         }
         
         return friendPanel;

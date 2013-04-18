@@ -2,9 +2,11 @@ package gmanager;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -98,8 +100,13 @@ public class CreateAccount extends JFrame implements ActionListener {
         c.insets = new Insets(5, 1, 5, 4);
         reg.add(cancel, c);
         
-        
         pack();
+        
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - getHeight()) / 2);
+        setLocation(x, y);
+        
         setVisible(true);
     }
 

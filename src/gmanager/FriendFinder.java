@@ -9,11 +9,13 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -29,8 +31,10 @@ public class FriendFinder extends JFrame {
     private JButton check, add, cancel;
     private Border standardBorder;
     private JTable found;
+    private JScrollPane scroll;
     private DefaultTableModel model;
     private MainGUI mainGUI;
+    private JLabel errorLabel;
     
     public FriendFinder(MainGUI mainGUI) {
         
@@ -65,7 +69,6 @@ public class FriendFinder extends JFrame {
         
         model = new DefaultTableModel(columnNames, 0);
         
-        
         found = new JTable(model);
         found.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel selectionModel = found.getSelectionModel();
@@ -83,8 +86,11 @@ public class FriendFinder extends JFrame {
                 }
             }
         });
+        
+        errorLabel = new JLabel("No matching users found.");
+        errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
   
-        JScrollPane scroll = new JScrollPane(found);
+        scroll = new JScrollPane();
         scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, 150));
         content.add(scroll, BorderLayout.CENTER);
         
@@ -127,6 +133,7 @@ public class FriendFinder extends JFrame {
         User requestor = mainGUI.getGManager().getUser();
         DBConnector.getInstance().requestFriend(requestor, requested);
         mainGUI.updateFriendPanel();
+        dispose();
     }
     
     private void checkUsers() {
@@ -144,6 +151,12 @@ public class FriendFinder extends JFrame {
 
                 model.addRow(rowData);
             }
+        }
+        if(model.getRowCount() == 0) {
+            scroll.setViewportView(errorLabel);
+        }
+        else {
+            scroll.setViewportView(found);
         }
     }
 }
