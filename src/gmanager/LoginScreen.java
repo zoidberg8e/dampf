@@ -61,12 +61,12 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
         c.gridx = 1;
         c.gridwidth = 2;
         cp.add(password, c);
-        
+               
         login = new JButton("Login");
         login.addActionListener(this);
         c.insets = new Insets(5, 5, 5, 0);
         c.gridwidth = 1;
-        c.gridy = 2;
+        c.gridy++;
         cp.add(login, c);
         
         register = new JButton("Register");

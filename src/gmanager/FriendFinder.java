@@ -21,11 +21,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author doldpa
- */
-public class FriendFinder extends JFrame {
+public class FriendFinder extends JFrame implements ActionListener {
     
     private JTextField searchField;
     private JButton check, add, cancel;
@@ -33,8 +29,8 @@ public class FriendFinder extends JFrame {
     private JTable found;
     private JScrollPane scroll;
     private DefaultTableModel model;
-    private MainGUI mainGUI;
     private JLabel errorLabel;
+    private MainGUI mainGUI;
     
     public FriendFinder(MainGUI mainGUI) {
         
@@ -56,13 +52,7 @@ public class FriendFinder extends JFrame {
         north.add(searchField, BorderLayout.CENTER);
         
         check = new JButton("Check");
-        check.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkUsers();
-            }
-        });
-        
+        check.addActionListener(this);
         north.add(check, BorderLayout.EAST);
         
         String[] columnNames = {"Username", "E-Mail"};
@@ -104,32 +94,20 @@ public class FriendFinder extends JFrame {
         south.add(southEast, BorderLayout.EAST);
         
         add = new JButton("Add");
-        add.setEnabled(false);
-        add.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = found.getSelectedRow();
-                User requested = new User((String) found.getValueAt(index, 1));
-                addFriend(requested);
-            }
-        });
+        //add.setEnabled(false);
+        add.addActionListener(this);
         southEast.add(add);
         
         cancel = new JButton("Cancel");
-        cancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        cancel.addActionListener(this);
         southEast.add(cancel);
+        
         pack();
         
         this.mainGUI = mainGUI;
     }
     
     private void addFriend(User requested) {
-        
         User requestor = mainGUI.getGManager().getUser();
         DBConnector.getInstance().requestFriend(requestor, requested);
         mainGUI.updateFriendPanel();
@@ -148,7 +126,6 @@ public class FriendFinder extends JFrame {
             
             for (User user : result) {
                 String[] rowData = {user.getUsername(), user.getEmail()};
-
                 model.addRow(rowData);
             }
         }
@@ -157,6 +134,21 @@ public class FriendFinder extends JFrame {
         }
         else {
             scroll.setViewportView(found);
+        }
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource().equals(check)) {
+            checkUsers();
+        }
+        else if(e.getSource().equals(add)) {
+            int index = found.getSelectedRow();
+            User requested = new User((String) found.getValueAt(index, 1));
+            addFriend(requested);
+        }
+        else if(e.getSource().equals(cancel)) {
+            dispose();
         }
     }
 }

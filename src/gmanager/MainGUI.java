@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,13 +29,12 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
     private JMenuItem exit, logout;
     private JScrollPane profile, explorer, news;
-    private JPanel alignFriendsNorth;
     private JTextField searchFriends;
     private JButton addFriend;
     private JTabbedPane tabbedPane;
     private GManager gameManager;
-    private User contextMenuUser;
-    private FriendFinder friendFinder;
+    private FriendList friendList;
+   // private FriendFinder friendFinder;
 
     public MainGUI(GManager gm) {
         super("GManager");
@@ -100,12 +98,12 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         addFriend.addActionListener(this);
         friendListHeaderPanel.add(addFriend, BorderLayout.EAST);
         
-        alignFriendsNorth = new JPanel();
+        JPanel alignFriendsNorth = new JPanel();
         alignFriendsNorth.setLayout(new BorderLayout());
         
         User u = gameManager.getUser();
-        JPanel friends = new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
-        alignFriendsNorth.add(friends, BorderLayout.NORTH);
+        friendList = new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
+        alignFriendsNorth.add(friendList, BorderLayout.NORTH);
         
         JScrollPane friendsScrollPane = new JScrollPane(alignFriendsNorth);
         friendsScrollPane.getVerticalScrollBar().setUnitIncrement(15);
@@ -185,7 +183,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         if (keyword.equals("")) {
             return users;
         }
-        List<User> filtered = new ArrayList();
+        ArrayList<User> filtered = new ArrayList<>();
         for (User u : users) {
             String username = u.getUsername();
             if(username.toLowerCase().contains(keyword.toLowerCase())) {
@@ -202,11 +200,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
     public void updateFriendPanel() {
         User u = gameManager.getUser();
         u.update();
-        
-        alignFriendsNorth.removeAll();
-        alignFriendsNorth.add(new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests()), BorderLayout.NORTH);
-        alignFriendsNorth.revalidate();
-        alignFriendsNorth.repaint();
+        friendList.update(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
     }
     
     @Override
@@ -219,15 +213,16 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             new LoginScreen();
         }
         else if(e.getSource().equals(addFriend)) {
-            if(friendFinder == null) {
-                friendFinder = new FriendFinder(this);
-            }
-            if(!friendFinder.isVisible()) {
+            //if(friendFinder == null) {
+                FriendFinder friendFinder = new FriendFinder(this);
                 friendFinder.setVisible(true);
-            }
-            else {
-                friendFinder.toFront();
-            }
+            //}
+            //if(!friendFinder.isVisible()) {
+            //    friendFinder.setVisible(true);
+            //}
+            //else {
+                //friendFinder.toFront();
+            //}
         }
     }
     
@@ -242,15 +237,12 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         if(e.getSource().equals(searchFriends)) {
             if(e.getKeyCode() == 10) {
                 String keyword = searchFriends.getText();
-                alignFriendsNorth.removeAll();
 
                 User[] requests = search(keyword, gameManager.getUser().getFriendRequests());
                 User[] friends = search(keyword, gameManager.getUser().getFriends());
                 User[] requested = search(keyword, gameManager.getUser().getUnansweredRequests());
-                JPanel friendPanel = new FriendList(requests, friends, requested);
-                alignFriendsNorth.add(friendPanel, BorderLayout.NORTH);
-                alignFriendsNorth.revalidate();
-                alignFriendsNorth.repaint();
+                
+                friendList.update(requests, friends, requested);
             }
         }
     }
