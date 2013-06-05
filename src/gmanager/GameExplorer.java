@@ -23,11 +23,15 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import java.awt.ActionListener;
+
+
 /**
  *
  * @author zoidberg
  */
-public class GameExplorer extends JFrame {
+public class GameExplorer extends JFrame implements ActionListener {
+    
     private JTextField searchField;
     private JButton check, add, cancel;
     private Border standartBorder;
@@ -83,7 +87,7 @@ public class GameExplorer extends JFrame {
             }
         });
         
-        errorLabel = new JLabel("No matching users found.");
+        errorLabel = new JLabel("No matching Games found.");
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
   
         scroll = new JScrollPane();
@@ -142,7 +146,6 @@ public class GameExplorer extends JFrame {
             scroll.setViewportView(found);
         }
     }
-    
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(check)) {
