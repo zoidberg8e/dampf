@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,7 +24,6 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import java.awt.ActionListener;
 
 
 /**
@@ -34,7 +34,6 @@ public class GameExplorer extends JFrame implements ActionListener {
     
     private JTextField searchField;
     private JButton check, add, cancel;
-    private Border standartBorder;
     private JTable found;
     private JScrollPane scroll;
     private DefaultTableModel model;
@@ -42,7 +41,7 @@ public class GameExplorer extends JFrame implements ActionListener {
     private MainGUI mainGUI;
     private Border standardBorder;
     
-    public GameExporer(MainGUI mainGUI){
+    public GameExplorer(MainGUI mainGUI) {
         
         super("Game Explorer");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

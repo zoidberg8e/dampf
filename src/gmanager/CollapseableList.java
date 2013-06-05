@@ -23,7 +23,7 @@ public class CollapseableList extends JPanel implements ActionListener {
     private CollapseButton button;
     private JPanel userList;
     private JLabel header;
-    private boolean visible;
+    private boolean visible = true;
     private GridBagConstraints global;
     
     public CollapseableList(String headerText, User[] users) {   
@@ -71,6 +71,7 @@ public class CollapseableList extends JPanel implements ActionListener {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(2, 22, 0, 3);
+        c.weightx = 1;
         c.gridy = 0;
         
         for (int i = 0; i < users.length; i++) {

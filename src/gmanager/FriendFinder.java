@@ -94,7 +94,7 @@ public class FriendFinder extends JFrame implements ActionListener {
         south.add(southEast, BorderLayout.EAST);
         
         add = new JButton("Add");
-        //add.setEnabled(false);
+        add.setEnabled(false);
         add.addActionListener(this);
         southEast.add(add);
         
@@ -103,7 +103,7 @@ public class FriendFinder extends JFrame implements ActionListener {
         southEast.add(cancel);
         
         pack();
-        
+
         this.mainGUI = mainGUI;
     }
     

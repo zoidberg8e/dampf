@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
     private JMenuItem exit, logout;
-    private JScrollPane profile, explorer, news;
+    private JScrollPane profile, explorer;
     private JTextField searchFriends;
     private JButton addFriend;
     private JTabbedPane tabbedPane;
@@ -68,8 +68,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         cp.add(tabbedPane, BorderLayout.CENTER);
         
-        news = new JScrollPane();
-        tabbedPane.addTab("News", news);
+        tabbedPane.addTab("News", new NewsPage());
         
         profile = new JScrollPane(createProfilePanel(gameManager.getUser()));
         tabbedPane.addTab("My Profile", profile);
@@ -183,7 +182,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         if (keyword.equals("")) {
             return users;
         }
-        ArrayList<User> filtered = new ArrayList<>();
+        ArrayList<User> filtered = new ArrayList();
         for (User u : users) {
             String username = u.getUsername();
             if(username.toLowerCase().contains(keyword.toLowerCase())) {
@@ -221,8 +220,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
             //    friendFinder.setVisible(true);
             //}
             //else {
-                //friendFinder.toFront();
-            //}
+            //    friendFinder.toFront();
         }
     }
     

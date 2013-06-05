@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import javax.swing.ImageIcon;
 
@@ -143,7 +144,7 @@ public final class DBConnector {
     }
     
     public User[] getFriendRequests(String email) {
-        ArrayList<User> friends = new ArrayList<>();
+        List<User> friends = new ArrayList();
         try {
             String statement = "SELECT benutzer1 FROM freundschaft WHERE benutzer2 = '" + email + "'";
             Statement st = con.createStatement();
@@ -171,7 +172,7 @@ public final class DBConnector {
     }
     
     public User[] getFriends(String email) {
-        ArrayList<User> friends = new ArrayList<>();
+        List<User> friends = new ArrayList();
         try {
             String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + email + "'";
             Statement st = con.createStatement();
@@ -199,7 +200,7 @@ public final class DBConnector {
     }
     
     public User[] getUnansweredRequests(String email) {
-        ArrayList<User> friends = new ArrayList<>();
+        List<User> friends = new ArrayList();
         try {
             String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + email + "'";
             Statement st = con.createStatement();
@@ -227,7 +228,7 @@ public final class DBConnector {
     }
     
     public User[] searchUsers(String searchText) {
-        ArrayList<User> result = new ArrayList<>();
+        List<User> result = new ArrayList();
         try {
             String statement = "SELECT email FROM benutzer WHERE name LIKE '%" + searchText + "%' OR email LIKE '%" + searchText + "%'";
             Statement st = con.createStatement();
