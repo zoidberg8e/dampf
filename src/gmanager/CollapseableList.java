@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 /**
@@ -19,18 +20,21 @@ import javax.swing.JSeparator;
 public class CollapseableList extends JPanel implements ActionListener {
     
     private User[] users;
-    private String headerText;
     private CollapseButton button;
     private JPanel userList;
     private JLabel header;
+    private String headerText;
     private boolean visible = true;
     private GridBagConstraints global;
     
-    public CollapseableList(String headerText, User[] users) {   
+    public static final int TYPE_REQUEST = 0;
+    public static final int TYPE_FRIEND = 1;
+    public static final int TYPE_REQUESTED = 2;
+    
+    public CollapseableList(int type, User[] users) {   
         super(new GridBagLayout());
         
         this.users = users;
-        this.headerText = headerText;
 
         global = new GridBagConstraints();
         global.fill = GridBagConstraints.HORIZONTAL;
@@ -43,6 +47,13 @@ public class CollapseableList extends JPanel implements ActionListener {
         global.gridx = 0;
         global.gridy = 0;
         add(button, global);
+        
+        switch (type) {
+            case TYPE_REQUEST: headerText = "Friend Requests"; break;
+            case TYPE_FRIEND: headerText = "Friends"; break;
+            case TYPE_REQUESTED: headerText = "Requested Friends"; break;
+            default: headerText = "List";
+        }
         
         header= new JLabel(headerText + " (" + users.length + ")");
         global.weightx = 1;
@@ -100,6 +111,10 @@ public class CollapseableList extends JPanel implements ActionListener {
         return base;
     }
     
+    private void setUserMenu() {
+        
+    }
+    
     public void updateUserList(User[] users) {
         if(compareUserArrays(this.users, users)) {
             return;
@@ -111,6 +126,7 @@ public class CollapseableList extends JPanel implements ActionListener {
         userList = createUserList();
         userList.setVisible(visible);
         add(userList, global);
+        header.setText(headerText + "(" + users.length + ")");
         
         if(users.length == 0) {
             setVisible(false);

@@ -24,6 +24,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
@@ -68,7 +69,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         cp.add(tabbedPane, BorderLayout.CENTER);
         
-        tabbedPane.addTab("News", new NewsPage());
+        tabbedPane.addTab("News", new NewsPage("<html>Welcome to the brand new GManager</html>"));
         
         profile = new JScrollPane(createProfilePanel(gameManager.getUser()));
         tabbedPane.addTab("My Profile", profile);
@@ -103,6 +104,18 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         User u = gameManager.getUser();
         friendList = new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
         alignFriendsNorth.add(friendList, BorderLayout.NORTH);
+        
+        Timer t = new Timer(60000, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameManager.getUser().update();
+                friendList.update(gameManager.getUser().getFriendRequests(),
+                                  gameManager.getUser().getFriends(),
+                                  gameManager.getUser().getUnansweredRequests());
+            }
+        });
+        t.start();
         
         JScrollPane friendsScrollPane = new JScrollPane(alignFriendsNorth);
         friendsScrollPane.getVerticalScrollBar().setUnitIncrement(15);

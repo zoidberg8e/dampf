@@ -41,7 +41,7 @@ public class GManager {
      */
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel*");
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         } catch (ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(null, ex, "LookAndFeel Error", JOptionPane.ERROR_MESSAGE);
         } catch (InstantiationException ex) {

@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -33,14 +36,14 @@ public class FriendList extends JPanel implements PopupMenuListener {
         c.gridy = 0;
         c.insets = new Insets(2, 0, 15, 0);
         
-        requestsPanel = new CollapseableList("Friend Requests", requests);
+        requestsPanel = new CollapseableList(CollapseableList.TYPE_REQUEST, requests);
         content.add(requestsPanel, c);
         
-        friendsPanel = new CollapseableList("Friends", friends);
+        friendsPanel = new CollapseableList(CollapseableList.TYPE_FRIEND, friends);
         c.gridy++;
         content.add(friendsPanel, c);
       
-        requestedPanel = new CollapseableList("RequestedFriends", requested);
+        requestedPanel = new CollapseableList(CollapseableList.TYPE_REQUESTED, requested);
         c.gridy++;
         content.add(requestedPanel, c);
     }

@@ -38,6 +38,7 @@ public class LoginScreen extends JFrame implements ActionListener, KeyListener {
         c.gridx = 0;
         c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
         c.insets = new Insets(4, 5, 0, 4);
         
         JLabel nameLabel = new JLabel("E-mail:");
