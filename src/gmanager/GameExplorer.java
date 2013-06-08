@@ -30,6 +30,11 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author zoidberg
  */
+/*
+ * Also erst mal sollte das ein JPanel und kein JFrame sein. Orientier dich am
+ * besten an der FriendList oder sowas. Und naja was soll ich da mehr dazu sagen,
+ * da ist ja nix dran gemacht, das ist meine Klasse 1:1 übernommen...
+ */
 public class GameExplorer extends JFrame implements ActionListener {
     
     private JTextField searchField;
