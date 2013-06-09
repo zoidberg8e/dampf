@@ -7,6 +7,8 @@ public class User {
     
     private final String email;
     private final String username;
+    private int age;
+    private ImageIcon userImage;
     private User[] friends;
     private User[] friendRequests;
     private User[] unansweredRequests;
@@ -14,12 +16,15 @@ public class User {
     public User(String email) {
         this.email = email;
         this.username = DBConnector.getInstance().getUsername(email);
+        this.age = DBConnector.getInstance().getUserAge(email);
+        this.userImage = DBConnector.getInstance().getUserImage(email);
     }
     
     public void update() {
         friends = DBConnector.getInstance().getFriends(email);
         friendRequests = DBConnector.getInstance().getFriendRequests(email);
         unansweredRequests = DBConnector.getInstance().getUnansweredRequests(email);
+        this.age = DBConnector.getInstance().getUserAge(email);
     }
     
     public String getEmail() {
@@ -30,8 +35,19 @@ public class User {
         return username;
     }
     
+    public int getAge() {
+        return age;
+    }
+    
+    public void setUserImage(String path) {
+        boolean successful = DBConnector.getInstance().setUserImage(email, path);
+        if(successful) {
+            this.userImage = DBConnector.getInstance().getUserImage(email);
+        }
+    }
+    
     public ImageIcon getUserImage() {
-        return new ImageIcon("sil.jpeg");
+        return userImage;
     }
     
     public User[] getFriends() {

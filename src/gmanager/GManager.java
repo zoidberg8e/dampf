@@ -1,7 +1,5 @@
 package gmanager;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -53,7 +51,10 @@ public class GManager {
         }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new LoginScreen();
+                //new LoginScreen();
+                User u = new User("pdold@gmail.com");
+                u.setUserImage("/home/patrickd/Desktop/cartman.png");
+                new MainGUI(new GManager(u));
             }
         });
     }

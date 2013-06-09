@@ -2,12 +2,16 @@ package gmanager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -98,7 +102,15 @@ public class CollapseableList extends JPanel implements ActionListener {
             userCard.setLayout(new BorderLayout());
             userCard.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-            JLabel thumbnail = new JLabel(users[i].getUserImage());
+            ImageIcon userImage = users[i].getUserImage();
+            int originalHeight = userImage.getIconHeight();
+            int size = 48;
+            if(originalHeight != size) {
+                Image originalImage = userImage.getImage();
+                userImage = new ImageIcon(originalImage.getScaledInstance(size, size, Image.SCALE_SMOOTH));
+            }
+            
+            JLabel thumbnail = new JLabel(userImage);
             thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             userCard.add(thumbnail, BorderLayout.WEST);
 

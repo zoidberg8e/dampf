@@ -1,7 +1,6 @@
 package gmanager;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,10 +19,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 public class MainGUI extends JFrame implements ActionListener, KeyListener {
@@ -71,7 +68,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         
         tabbedPane.addTab("News", new NewsPage("<html>Welcome to the brand new GManager</html>"));
         
-        profile = new JScrollPane(createProfilePanel(gameManager.getUser()));
+        profile = new JScrollPane(new ProfilePanel(gameManager.getUser(), true));
         tabbedPane.addTab("My Profile", profile);
         
         explorer = new JScrollPane();
@@ -132,33 +129,6 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         setPreferredSize(new Dimension(640, 480));
         pack();
         setVisible(true);
-    }
-    
-    private JPanel createProfilePanel(User user) {
-        JPanel profilePanel = new JPanel();
-        profilePanel.setLayout(new BorderLayout());
-        
-        JPanel topLine = new JPanel();
-        topLine.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
-        topLine.setLayout(new BorderLayout(8, 10));
-        profilePanel.add(topLine, BorderLayout.NORTH);
-        
-        JLabel userImage = new JLabel(user.getUserImage());
-        userImage.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 3));
-        topLine.add(userImage, BorderLayout.WEST);
-        
-        JLabel userName = new JLabel(user.getUsername());
-        Font f = userName.getFont();
-        Float s = f.getSize2D();
-        s += 12.0f;
-        userName.setFont(f.deriveFont(s));
-        userName.setVerticalAlignment(SwingConstants.BOTTOM);
-        topLine.add(userName, BorderLayout.CENTER);
-        
-        JSeparator sep = new JSeparator();
-        topLine.add(sep, BorderLayout.SOUTH);
-        
-        return profilePanel;
     }
     
     private JPanel createExplorerPanel() {

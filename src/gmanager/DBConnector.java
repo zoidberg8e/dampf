@@ -1,13 +1,21 @@
 package gmanager;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 public final class DBConnector {
@@ -61,8 +69,58 @@ public final class DBConnector {
         return -1;
     }
     
-    public ImageIcon getUserImage(int userID) {
-        return new ImageIcon();
+    public ImageIcon getUserImage(String email) {
+        ImageIcon img = null;
+        try {
+            String statement = "SELECT bild FROM benutzer WHERE email = '" + email + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+
+            if (rs.next()) {
+                byte[] imgData = rs.getBytes("bild");
+                if(imgData != null) {
+                    img = new ImageIcon(imgData);
+                }
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        if(img != null) {
+            return img;
+        }
+        else {
+            return new ImageIcon("sil.jpeg");
+        }
+    }
+    
+    public boolean setUserImage(String email, String path) {
+        try {    
+            File imgFile = new File(path);
+            FileInputStream fis = new FileInputStream(imgFile);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            for (int readNum; (readNum = fis.read(buf)) != -1;) {
+                bos.write(buf, 0, readNum);     
+            }
+            byte[] bytes = bos.toByteArray();
+            fis.close();
+            bos.close();
+
+            PreparedStatement ps = con.prepareStatement("UPDATE benutzer SET bild=? WHERE email=?");
+            ps.setBytes(1, bytes);
+            ps.setString(2, email);
+            ps.executeUpdate();
+            
+            ps.close();
+
+            } catch (Exception ex) {
+                System.err.println(ex);
+                return false;
+            }
+        return true;
     }
     
     public boolean emailExists(String email) {
@@ -270,5 +328,23 @@ public final class DBConnector {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    
+    public int getUserAge(String email) {
+        try {
+            String statement = "SELECT age FROM benutzer WHERE email = '" + email + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                return rs.getInt("age");
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return 0;
     }
 }
