@@ -115,9 +115,8 @@ public final class DBConnector {
             ps.executeUpdate();
             
             ps.close();
-
             } catch (Exception ex) {
-                System.err.println(ex);
+                System.out.println(ex);
                 return false;
             }
         return true;
@@ -338,6 +337,24 @@ public final class DBConnector {
             
             if (rs.next()) {
                 return rs.getInt("age");
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return 0;
+    }
+    
+    public int getUserICQ(String email) {
+        try {
+            String statement = "SELECT icq FROM benutzer WHERE email = '" + email + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                return rs.getInt("icq");
             }
             rs.close();
             st.close();

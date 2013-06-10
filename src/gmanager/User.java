@@ -8,6 +8,7 @@ public class User {
     private final String email;
     private final String username;
     private int age;
+    private int icq;
     private ImageIcon userImage;
     private User[] friends;
     private User[] friendRequests;
@@ -18,6 +19,7 @@ public class User {
         this.username = DBConnector.getInstance().getUsername(email);
         this.age = DBConnector.getInstance().getUserAge(email);
         this.userImage = DBConnector.getInstance().getUserImage(email);
+        this.icq = DBConnector.getInstance().getUserICQ(email);
     }
     
     public void update() {
@@ -37,6 +39,10 @@ public class User {
     
     public int getAge() {
         return age;
+    }
+    
+    public int getICQ() {
+        return icq;
     }
     
     public void setUserImage(String path) {

@@ -53,7 +53,7 @@ public class GManager {
             public void run() {
                 //new LoginScreen();
                 User u = new User("pdold@gmail.com");
-                u.setUserImage("/home/patrickd/Desktop/cartman.png");
+                u.setUserImage("/home/students/e2it3t/doldpa/cartman.png");
                 new MainGUI(new GManager(u));
             }
         });
