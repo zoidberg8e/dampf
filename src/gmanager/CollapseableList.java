@@ -34,6 +34,7 @@ public class CollapseableList extends JPanel implements ActionListener {
     public static final int TYPE_REQUEST = 0;
     public static final int TYPE_FRIEND = 1;
     public static final int TYPE_REQUESTED = 2;
+    public static final int TYPE_GAME = 1;
     
     public CollapseableList(int type, User[] users) {   
         super(new GridBagLayout());

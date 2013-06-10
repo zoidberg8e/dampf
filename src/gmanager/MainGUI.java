@@ -71,7 +71,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         profile = new JScrollPane(new ProfilePanel(gameManager.getUser(), true));
         tabbedPane.addTab("My Profile", profile);
         
-        explorer = new JScrollPane();
+        explorer = new JScrollPane(new GameExplorer());
         tabbedPane.addTab("Game Explorer", explorer);
         
         JPanel east = new JPanel();
