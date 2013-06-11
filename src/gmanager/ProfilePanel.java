@@ -9,15 +9,20 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.plaf.basic.BasicTextUI;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -28,16 +33,16 @@ public class ProfilePanel extends JPanel implements ActionListener {
     private User user;
     private boolean editable;
     private JButton editProfile = null;
-    JTextField age;
-    JTextField icq;
+    private JTextPane age, icq, jabber;
+    private DefaultTableModel model;
     
     public ProfilePanel(User user, boolean editable) {
         
         super();
         setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
         
         JPanel topLine = new JPanel();
-        topLine.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
         topLine.setLayout(new BorderLayout(8, 10));
         add(topLine, BorderLayout.NORTH);
         
@@ -69,47 +74,110 @@ public class ProfilePanel extends JPanel implements ActionListener {
         
         JSeparator sep = new JSeparator();
         topLine.add(sep, BorderLayout.SOUTH);
-            
-        JPanel westAlign = new JPanel();
-        westAlign.setLayout(new BorderLayout());
-        add(westAlign, BorderLayout.WEST);
         
-        JPanel userInfo = new JPanel();
-        userInfo.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
-        userInfo.setLayout(new GridBagLayout());
-        westAlign.add(userInfo, BorderLayout.NORTH);
-
+        JPanel center = new JPanel();
+        center.setLayout(new GridBagLayout());
+        add(center, BorderLayout.CENTER);
+        
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.NORTH;
-        c.fill = GridBagConstraints.BOTH;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
         c.gridx = 0;
         c.gridy = 0;
-        c.insets = new Insets(0, 0, 10, 15);
+        c.insets = new Insets(10, 0, 10, 0);
+        
+        JPanel userInfo = new JPanel();
+        userInfo.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        userInfo.setLayout(new GridBagLayout());
+        center.add(userInfo, c);
+
+        GridBagConstraints d = new GridBagConstraints();
+        d.anchor = GridBagConstraints.WEST;
+        d.fill = GridBagConstraints.NONE;
+        d.gridx = 0;
+        d.gridy = 0;
+        d.insets = new Insets(0, 0, 10, 30);
         
         JLabel ageLabel = new JLabel("Age:");
-        userInfo.add(ageLabel, c);
+        userInfo.add(ageLabel, d);
         
         int userAge = user.getAge();
-        if(userAge > 0) {
-            age = new JTextField("" + userAge, 9);
+        if(userAge > 0) {          
+            age = new JTextPane();
+            age.setText("" + userAge);
+            age.setBorder(null);
+            age.setBackground(null);
             age.setEditable(false);
-            c.gridx++;
-            userInfo.add(age, c);
+            age.setOpaque(false);
+            d.gridx++;
+            d.weightx = 1;
+            userInfo.add(age, d);
         }
         
         JLabel icqLabel = new JLabel("ICQ:");
-        c.gridx = 0;
-        c.gridy++;
-        c.weighty = 0;
-        userInfo.add(icqLabel, c);
+        d.weightx = 0;
+        d.gridx = 0;
+        d.gridy++;
+        d.weighty = 0;
+        userInfo.add(icqLabel, d);
         
         int userICQ = user.getICQ();
         if(userICQ > 0) {
-            icq = new JTextField("" + userICQ, 9);
+            icq = new JTextPane();
+            icq.setText("" + userICQ);
+            icq.setBackground(null);
+            icq.setBorder(null);
             icq.setEditable(false);
-            c.gridx++;
-            userInfo.add(icq, c);
+            icq.setOpaque(false);
+            d.gridx++;
+            userInfo.add(icq, d);
         }
+        
+        JLabel jabberLabel = new JLabel("Jabber:");
+        d.gridx = 0;
+        d.gridy++;
+        userInfo.add(jabberLabel, d);
+        
+        String userJabber = user.getJabber();
+        if(userJabber != null) {
+            jabber = new JTextPane();
+            jabber.setText("" + user.getJabber());
+            jabber.setBackground(null);
+            jabber.setBorder(null);
+            jabber.setEditable(false);
+            jabber.setOpaque(false);
+            d.gridx++;
+            userInfo.add(jabber, d);
+        }
+        
+        c.gridy++;
+        center.add(new JSeparator(), c);
+        
+        JPanel myGames = new JPanel();
+        myGames.setLayout(new BorderLayout());
+        myGames.setBorder(BorderFactory.createTitledBorder("My Games"));
+        c.gridy++;
+        c.weighty = 1;
+        center.add(myGames, c);
+        
+        String[] columnNames = {"Game", "Playtime", "Playing"};
+        model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+        
+        JTable table = new JTable(model);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        myGames.add(table, BorderLayout.CENTER);
+        
+        JTableHeader header = table.getTableHeader();
+        myGames.add(header, BorderLayout.NORTH);
+        
+        updateGames(user.getGames());
         
         this.user = user;
         this.editable = editable;
@@ -118,5 +186,12 @@ public class ProfilePanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         
+    }
+    
+    public void updateGames(ArrayList<String[]> gameList) {
+        model.setRowCount(0);
+        for(int i = 0; i < gameList.size(); i ++) {
+            model.addRow(gameList.get(i));
+        }
     }
 }

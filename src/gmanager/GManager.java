@@ -52,8 +52,8 @@ public class GManager {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 //new LoginScreen();
-                User u = new User("pdold@gmail.com");
-                u.setUserImage("/home/students/e2it3t/doldpa/cartman.png");
+                User u = new User(1);
+                u.setUserImage("/home/patrickd/Desktop/cartman.png");
                 new MainGUI(new GManager(u));
             }
         });

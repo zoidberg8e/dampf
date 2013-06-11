@@ -57,7 +57,13 @@ public class FriendFinder extends JFrame implements ActionListener {
         
         String[] columnNames = {"Username", "E-Mail"};
         
-        model = new DefaultTableModel(columnNames, 0);
+        model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
         
         found = new JTable(model);
         found.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -144,8 +150,12 @@ public class FriendFinder extends JFrame implements ActionListener {
         }
         else if(e.getSource().equals(add)) {
             int index = found.getSelectedRow();
-            User requested = new User((String) found.getValueAt(index, 1));
-            addFriend(requested);
+            String email = (String) found.getValueAt(index, 1);
+            int ID = DBConnector.getInstance().getUserID(email);
+            if (ID != -1) {
+                User requested = new User(ID);
+                addFriend(requested);
+            }
         }
         else if(e.getSource().equals(cancel)) {
             dispose();

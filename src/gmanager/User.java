@@ -1,32 +1,42 @@
 
 package gmanager;
 
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 public class User {
     
+    private int id;
     private final String email;
     private final String username;
     private int age;
     private int icq;
+    private String jabber;
     private ImageIcon userImage;
     private User[] friends;
     private User[] friendRequests;
     private User[] unansweredRequests;
+    private ArrayList<String[]> games;
     
-    public User(String email) {
-        this.email = email;
-        this.username = DBConnector.getInstance().getUsername(email);
-        this.age = DBConnector.getInstance().getUserAge(email);
-        this.userImage = DBConnector.getInstance().getUserImage(email);
-        this.icq = DBConnector.getInstance().getUserICQ(email);
+    public User(int ID) {
+        this.id = ID;
+        this.email = DBConnector.getInstance().getUserEmail(id);
+        this.username = DBConnector.getInstance().getUserName(id);
+        
+        this.userImage = DBConnector.getInstance().getUserImage(id);
+        this.age = DBConnector.getInstance().getUserAge(id);
+        this.icq = DBConnector.getInstance().getUserICQ(id);
+        this.jabber = DBConnector.getInstance().getUserJabber(id);
     }
     
     public void update() {
-        friends = DBConnector.getInstance().getFriends(email);
-        friendRequests = DBConnector.getInstance().getFriendRequests(email);
-        unansweredRequests = DBConnector.getInstance().getUnansweredRequests(email);
-        this.age = DBConnector.getInstance().getUserAge(email);
+        this.friends = DBConnector.getInstance().getFriends(id);
+        this.friendRequests = DBConnector.getInstance().getFriendRequests(id);
+        this.unansweredRequests = DBConnector.getInstance().getUnansweredRequests(id);
+        this.userImage = DBConnector.getInstance().getUserImage(id);
+        this.age = DBConnector.getInstance().getUserAge(id);
+        this.icq = DBConnector.getInstance().getUserICQ(id);
+        this.jabber = DBConnector.getInstance().getUserJabber(id);
     }
     
     public String getEmail() {
@@ -45,10 +55,14 @@ public class User {
         return icq;
     }
     
+    public String getJabber() {
+        return jabber;
+    }
+    
     public void setUserImage(String path) {
-        boolean successful = DBConnector.getInstance().setUserImage(email, path);
+        boolean successful = DBConnector.getInstance().setUserImage(id, path);
         if(successful) {
-            this.userImage = DBConnector.getInstance().getUserImage(email);
+            this.userImage = DBConnector.getInstance().getUserImage(id);
         }
     }
     
@@ -58,22 +72,29 @@ public class User {
     
     public User[] getFriends() {
         if (friends == null) {
-            friends = DBConnector.getInstance().getFriends(email);
+            friends = DBConnector.getInstance().getFriends(id);
         }
         return friends;
     }
     
     public User[] getFriendRequests() {
         if (friendRequests == null) {
-            friendRequests = DBConnector.getInstance().getFriendRequests(email);
+            friendRequests = DBConnector.getInstance().getFriendRequests(id);
         }
         return friendRequests;
     }
     
     public User[] getUnansweredRequests() {
         if (unansweredRequests == null) {
-            unansweredRequests = DBConnector.getInstance().getUnansweredRequests(email);
+            unansweredRequests = DBConnector.getInstance().getUnansweredRequests(id);
         }
         return unansweredRequests;
+    }
+    
+    public ArrayList<String[]> getGames() {
+        if (games == null) {
+            games = DBConnector.getInstance().getUserGames(id);
+        }
+        return games;
     }
 }

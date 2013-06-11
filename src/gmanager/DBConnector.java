@@ -11,11 +11,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.swing.ImageIcon;
 
 public final class DBConnector {
@@ -33,7 +33,7 @@ public final class DBConnector {
         try {
             con = DriverManager.getConnection(url, props);
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
     }
     
@@ -41,7 +41,7 @@ public final class DBConnector {
         if (!DBConnector.getInstance().emailExists(email)) {
             return false;
         }
-        if (getPasswordHash(email) == hashPW) {
+        if (getPasswordHash(getUserID(email)) == hashPW) {
             return true;
         }
         else {
@@ -49,9 +49,29 @@ public final class DBConnector {
         }
     }
     
-    private int getPasswordHash(String email) {
+    public int getUserID(String email) {
+        int result = -1;
         try {
-            String statement = "SELECT passwort FROM benutzer WHERE email = '" + email + "'";
+            String statement = "SELECT benutzerid FROM benutzer WHERE email = '" + email + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                result = rs.getInt("benutzerid");
+                rs.close();
+                st.close();
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return result;
+    }
+    
+    private int getPasswordHash(int id) {
+        try {
+            String statement = "SELECT passwort FROM benutzer WHERE benutzerid = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -64,15 +84,15 @@ public final class DBConnector {
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return -1;
     }
     
-    public ImageIcon getUserImage(String email) {
+    public ImageIcon getUserImage(int id) {
         ImageIcon img = null;
         try {
-            String statement = "SELECT bild FROM benutzer WHERE email = '" + email + "'";
+            String statement = "SELECT bild FROM benutzer WHERE benutzerid = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -86,7 +106,7 @@ public final class DBConnector {
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         if(img != null) {
             return img;
@@ -96,8 +116,8 @@ public final class DBConnector {
         }
     }
     
-    public boolean setUserImage(String email, String path) {
-        try {    
+    public boolean setUserImage(int id, String path) {
+        try {
             File imgFile = new File(path);
             FileInputStream fis = new FileInputStream(imgFile);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -109,9 +129,9 @@ public final class DBConnector {
             fis.close();
             bos.close();
 
-            PreparedStatement ps = con.prepareStatement("UPDATE benutzer SET bild=? WHERE email=?");
+            PreparedStatement ps = con.prepareStatement("UPDATE benutzer SET bild=? WHERE benutzerid=?");
             ps.setBytes(1, bytes);
-            ps.setString(2, email);
+            ps.setInt(2, id);
             ps.executeUpdate();
             
             ps.close();
@@ -137,7 +157,27 @@ public final class DBConnector {
             st.close();
             return false;
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
+        }
+        return false;
+    }
+    
+    private boolean idExists(int id) {
+        try {
+            String statement = "SELECT * FROM benutzer WHERE benutzerid = '" + id + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                rs.close();
+                st.close();
+                return true;
+            }
+            rs.close();
+            st.close();
+            return false;
+        } catch (SQLException ex) {
+            System.out.println(ex);
         }
         return false;
     }
@@ -157,7 +197,7 @@ public final class DBConnector {
             st.close();
             return false;
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return false;
     }
@@ -174,43 +214,43 @@ public final class DBConnector {
                 Statement st = con.createStatement();
                 st.executeUpdate(statement);
             } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+                System.out.println(ex);
             }
         }
         return false;
     }
     
-    public String getUsername(String email) {
-        if (!emailExists(email)) {
+    public String getUserName(int id) {
+        if(!idExists(id)) {
             return null;
         }
         try {
-            String statement = "SELECT name FROM benutzer WHERE email = '" + email + "'";
+            String statement = "SELECT benutzername FROM benutzer WHERE benutzerid = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             if (rs.next()) {
-                return rs.getString(1);
+                return rs.getString("benutzername");
             }
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return null;
     }
     
-    public User[] getFriendRequests(String email) {
+    public User[] getFriendRequests(int id) {
         List<User> friends = new ArrayList();
         try {
-            String statement = "SELECT benutzer1 FROM freundschaft WHERE benutzer2 = '" + email + "'";
+            String statement = "SELECT benutzer1 FROM freundschaft WHERE benutzer2 = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
-                String user2 = rs.getString(1);
+                int user2 = rs.getInt("benutzer1");
                 String statement2 = "SELECT * FROM freundschaft WHERE " + 
-                                    "benutzer1 = '" + email + "' AND " +
+                                    "benutzer1 = '" + id + "' AND " +
                                     "benutzer2 = '" + user2 + "'";
                 Statement st2 = con.createStatement();
                 ResultSet rs2 = st2.executeQuery(statement2);
@@ -223,23 +263,23 @@ public final class DBConnector {
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return friends.toArray(new User[friends.size()]);
     }
     
-    public User[] getFriends(String email) {
+    public User[] getFriends(int id) {
         List<User> friends = new ArrayList();
         try {
-            String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + email + "'";
+            String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
-                String user2 = rs.getString(1);
+                int user2 = rs.getInt("benutzer2");
                 String statement2 = "SELECT * FROM freundschaft WHERE " + 
                                     "benutzer1 = '" + user2 + "' AND " +
-                                    "benutzer2 = '" + email + "'";
+                                    "benutzer2 = '" + id + "'";
                 Statement st2 = con.createStatement();
                 ResultSet rs2 = st2.executeQuery(statement2);
                 if(rs2.next()) {
@@ -251,23 +291,23 @@ public final class DBConnector {
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return friends.toArray(new User[friends.size()]);
     }
     
-    public User[] getUnansweredRequests(String email) {
+    public User[] getUnansweredRequests(int id) {
         List<User> friends = new ArrayList();
         try {
-            String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + email + "'";
+            String statement = "SELECT benutzer2 FROM freundschaft WHERE benutzer1 = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
-                String user2 = rs.getString(1);
+                int user2 = rs.getInt("benutzer2");
                 String statement2 = "SELECT * FROM freundschaft WHERE " + 
                                     "benutzer1 = '" + user2 + "' AND " +
-                                    "benutzer2 = '" + email + "'";
+                                    "benutzer2 = '" + id + "'";
                 Statement st2 = con.createStatement();
                 ResultSet rs2 = st2.executeQuery(statement2);
                 if(!rs2.next()) {
@@ -279,7 +319,7 @@ public final class DBConnector {
             rs.close();
             st.close();
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return friends.toArray(new User[friends.size()]);
     }
@@ -287,16 +327,16 @@ public final class DBConnector {
     public User[] searchUsers(String searchText) {
         List<User> result = new ArrayList();
         try {
-            String statement = "SELECT email FROM benutzer WHERE name LIKE '%" + searchText + "%' OR email LIKE '%" + searchText + "%'";
+            String statement = "SELECT benutzerid FROM benutzer WHERE name LIKE '%" + searchText + "%' OR email LIKE '%" + searchText + "%'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
-                String email = rs.getString(1);
-                result.add(new User(email));
+                int id = rs.getInt("benutzerid");
+                result.add(new User(id));
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         return result.toArray(new User[result.size()]);
     }
@@ -316,7 +356,7 @@ public final class DBConnector {
                 return;
             }
         } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+                System.out.println(ex);
         }
         
         try {
@@ -325,13 +365,31 @@ public final class DBConnector {
             Statement st = con.createStatement();
             st.executeUpdate(statement);
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
     }
     
-    public int getUserAge(String email) {
+    public String getUserEmail(int id) {
         try {
-            String statement = "SELECT age FROM benutzer WHERE email = '" + email + "'";
+            String statement = "SELECT email FROM benutzer WHERE benutzerid = '" + id + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                return rs.getString("email");
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return null;
+    }
+    
+    public int getUserAge(int id) {
+        try {
+            String statement = "SELECT age FROM benutzer WHERE benutzerid = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -347,9 +405,9 @@ public final class DBConnector {
         return 0;
     }
     
-    public int getUserICQ(String email) {
+    public int getUserICQ(int id) {
         try {
-            String statement = "SELECT icq FROM benutzer WHERE email = '" + email + "'";
+            String statement = "SELECT icq FROM benutzer WHERE benutzerid = '" + id + "'";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -363,5 +421,52 @@ public final class DBConnector {
             System.out.println(ex);
         }
         return 0;
+    }
+    
+    public String getUserJabber(int id) {
+        try {
+            String statement = "SELECT jabber FROM benutzer WHERE benutzerid = '" + id + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                return rs.getString("jabber");
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return null;
+    }
+    
+    public ArrayList<String[]> getUserGames(int id) {
+        ArrayList<String[]> list = new ArrayList<String[]>();
+        try {
+            String statement = "SELECT \"spielname\", \"spielzeit\", \"spielt\" FROM \"besitz\" LEFT JOIN"
+                             + "\"spiel\" ON \"spiel\".\"spielid\"=\"besitz\".\"spielid\""
+                             + "WHERE \"besitz\".\"benutzerid\" = '" + id + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            while (rs.next()) {
+                String[] game = new String[3];
+                game[0] = rs.getString("spielname");
+                int playTime = rs.getInt("spielzeit");
+                int hour = playTime / 3600;
+                int minute = (playTime - (hour * 3600) )/ 60;
+                DecimalFormat df = new DecimalFormat("00");
+                game[1] = hour + ":" + df.format(minute);
+                game[2] = "No";
+                list.add(game);
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return list;
     }
 }
