@@ -9,13 +9,16 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
@@ -28,13 +31,14 @@ import javax.swing.table.JTableHeader;
  *
  * @author patrickd
  */
-public class ProfilePanel extends JPanel implements ActionListener {
+public class ProfilePanel extends JPanel implements ActionListener, MouseListener {
     
     private User user;
     private boolean editable;
     private JButton editProfile = null;
     private JTextPane age, icq, jabber;
     private DefaultTableModel model;
+    private JTable table;
     
     public ProfilePanel(User user, boolean editable) {
         
@@ -170,7 +174,8 @@ public class ProfilePanel extends JPanel implements ActionListener {
             }
         };
         
-        JTable table = new JTable(model);
+        table = new JTable(model);
+        table.addMouseListener(this);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         myGames.add(table, BorderLayout.CENTER);
         
@@ -194,4 +199,37 @@ public class ProfilePanel extends JPanel implements ActionListener {
             model.addRow(gameList.get(i));
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        int r = table.rowAtPoint(e.getPoint());
+        if (r >= 0 && r < table.getRowCount()) {
+            table.setRowSelectionInterval(r, r);
+        }
+        else {
+            table.clearSelection();
+        }
+        
+        int rowindex = table.getSelectedRow();
+        if(rowindex < 0) {
+            return;
+        }
+        if(e.getButton() == 3 && e.getComponent() instanceof JTable) {
+            JPopupMenu popup = new JPopupMenu();
+            popup.add(new JMenuItem("Toggle Playing"));
+            popup.show(e.getComponent(), e.getX(), e.getY());
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }
