@@ -13,7 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-public class TabCloseButton extends JButton{
+public class TabCloseButton extends JButton {
 
     public TabCloseButton() {
         int size = 17;

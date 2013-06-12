@@ -4,32 +4,32 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 
-public class NewsPage extends JPanel {
+public class NewsPage extends JScrollPane {
     
-    private JLabel news;
+    private JTextPane news;
     
     public NewsPage(String newsText) {
         super();
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         JLabel heading = new JLabel("News");
-        heading.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        heading.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
         heading.setHorizontalAlignment(SwingConstants.CENTER);
         Font f = heading.getFont();
         heading.setFont(f.deriveFont(f.getSize2D() + 15.0f));
-        add(heading, BorderLayout.NORTH);
+        setColumnHeaderView(heading);
 
-        news = new JLabel(newsText);
-        news.setVerticalAlignment(SwingConstants.TOP);
-        news.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JScrollPane scroll = new JScrollPane(news);
-        add(scroll, BorderLayout.CENTER);
+        news = new JTextPane();
+        news.setContentType("text/html");
+        news.setText(newsText);
+        news.setEditable(false);
+        setViewportView(news);
+        //news.setVerticalAlignment(SwingConstants.TOP);
+        //news.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
     }
     
     public void setNews(String text) {

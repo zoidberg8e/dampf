@@ -26,7 +26,8 @@ import javax.swing.Timer;
 public class MainGUI extends JFrame implements ActionListener, KeyListener {
     
     private JMenuItem exit, logout;
-    private JScrollPane profile, explorer;
+    private JScrollPane profile;
+    private GameExplorer explorer;
     private JTextField searchFriends;
     private JButton addFriend;
     private JTabbedPane tabbedPane;
@@ -71,7 +72,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         profile = new JScrollPane(new ProfilePanel(gameManager.getUser(), true));
         tabbedPane.addTab("My Profile", profile);
         
-        explorer = new JScrollPane(new GameExplorer());
+        explorer = new GameExplorer(tabbedPane);
         tabbedPane.addTab("Game Explorer", explorer);
         
         JPanel east = new JPanel();

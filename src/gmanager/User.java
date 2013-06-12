@@ -59,14 +59,14 @@ public class User {
         return jabber;
     }
     
-    public void setUserImage(String path) {
+    public void setImage(String path) {
         boolean successful = DBConnector.getInstance().setUserImage(id, path);
         if(successful) {
             this.userImage = DBConnector.getInstance().getUserImage(id);
         }
     }
     
-    public ImageIcon getUserImage() {
+    public ImageIcon getImage() {
         return userImage;
     }
     

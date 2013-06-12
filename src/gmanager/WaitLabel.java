@@ -13,10 +13,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
-/**
- *
- * @author patrickd
- */
 public class WaitLabel extends JLabel implements ActionListener {
     
     private int alpha = 0;
@@ -82,7 +78,6 @@ public class WaitLabel extends JLabel implements ActionListener {
         Toolkit.getDefaultToolkit().sync();
         
         g2.dispose();
-        
     }
 
     

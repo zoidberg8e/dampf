@@ -3,8 +3,6 @@ package gmanager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -112,7 +110,34 @@ public final class DBConnector {
             return img;
         }
         else {
-            return new ImageIcon("sil.jpeg");
+            return new ImageIcon(getClass().getResource("/gmanager/sil.jpeg"));
+        }
+    }
+    
+    public ImageIcon getGameImage(int id) {
+        ImageIcon img = null;
+        try {
+            String statement = "SELECT bild FROM spiel WHERE spielid = '" + id + "'";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+
+            if (rs.next()) {
+                byte[] imgData = rs.getBytes("bild");
+                if(imgData != null) {
+                    img = new ImageIcon(imgData);
+                }
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        if(img != null) {
+            return img;
+        }
+        else {
+            return new ImageIcon(getClass().getResource("/gmanager/game_default.jpg"));
         }
     }
     
@@ -469,4 +494,100 @@ public final class DBConnector {
         }
         return list;
     }
+    
+    public ArrayList<Game> getGamesLike(String compare) {
+        ArrayList<Game> list = new ArrayList<Game>();
+        try {
+            String statement = "SELECT \"spielid\", \"spielname\", \"entwickler\""
+                             + "FROM \"spiel\""
+                             + "WHERE LOWER(\"spielname\") LIKE LOWER('" + compare + "')";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            while (rs.next()) {
+                int gameID = rs.getInt("spielid");
+                String name = rs.getString("spielname");
+                String developer = rs.getString("entwickler");
+                Game game = new Game(gameID, name, developer);
+                list.add(game);
+            }
+            rs.close();
+            st.close();
+
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return list;
+    }
+    
+    public String getGameName(int ID) {
+        String result = null;
+        try {
+            String statement = "SELECT spielname FROM spiel WHERE spielid =" + ID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                result = rs.getString("spielname");
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return result;
+    }
+    
+    public String getGameDeveloper(int ID) {
+        String result = null;
+        try {
+            String statement = "SELECT entwickler FROM spiel WHERE spielid =" + ID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                result = rs.getString("entwickler");
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return result;
+    }
+    
+    public Integer[][] getGameRatings(int ID) {
+        Integer[] ratingFun = {0, 0, 0, 0, 0, 0};
+        Integer[] ratingIncentive = {0, 0, 0, 0, 0, 0};
+        Integer[] ratingGraphic = {0, 0, 0, 0, 0, 0};
+        Integer[] ratingPricePerformance = {0, 0, 0, 0, 0, 0};
+        try {
+            String statement = "SELECT \"spass\", \"motivation\", \"grafik\", \"preisleistung\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"spielid\"=ID";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            while (rs.next()) {
+                int fun = rs.getInt("spass");
+                int inc = rs.getInt("motivation");
+                int gra = rs.getInt("grafik");
+                int pri = rs.getInt("preisleistung");
+                
+                ratingFun[fun] = ratingFun[fun] + 1;
+                ratingIncentive[inc] = ratingIncentive[inc] + 1;
+                ratingGraphic[gra] = ratingGraphic[gra] + 1;
+                ratingPricePerformance[pri] = ratingPricePerformance[pri] + 1;
+                
+            }
+            rs.close();
+            st.close();
+            
+            Integer[][] ratings = {ratingFun, ratingIncentive, ratingGraphic, ratingPricePerformance};
+            return ratings;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return null;
+    } 
 }

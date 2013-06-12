@@ -27,10 +27,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-/**
- *
- * @author patrickd
- */
 public class ProfilePanel extends JPanel implements ActionListener, MouseListener {
     
     private User user;
@@ -50,7 +46,7 @@ public class ProfilePanel extends JPanel implements ActionListener, MouseListene
         topLine.setLayout(new BorderLayout(8, 10));
         add(topLine, BorderLayout.NORTH);
         
-        ImageIcon userIcon = user.getUserImage();
+        ImageIcon userIcon = user.getImage();
         Image original = userIcon.getImage();
         
         int size = 96;
@@ -180,6 +176,7 @@ public class ProfilePanel extends JPanel implements ActionListener, MouseListene
         myGames.add(table, BorderLayout.CENTER);
         
         JTableHeader header = table.getTableHeader();
+        header.setReorderingAllowed(false);
         myGames.add(header, BorderLayout.NORTH);
         
         updateGames(user.getGames());
