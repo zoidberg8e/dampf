@@ -145,7 +145,6 @@ public class CollapseableList extends JPanel implements ActionListener {
         if(a1.length != a2.length) {
             return false;
         }
-        // TODO: finish comparison...
         return true;
     }
     

@@ -471,7 +471,8 @@ public final class DBConnector {
         try {
             String statement = "SELECT \"spielname\", \"spielzeit\", \"spielt\" FROM \"besitz\" LEFT JOIN"
                              + "\"spiel\" ON \"spiel\".\"spielid\"=\"besitz\".\"spielid\""
-                             + "WHERE \"besitz\".\"benutzerid\" = '" + id + "'";
+                             + "WHERE \"besitz\".\"benutzerid\" =" + id
+                             + "ORDER BY \"spielname\"";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -500,7 +501,8 @@ public final class DBConnector {
         try {
             String statement = "SELECT \"spielid\", \"spielname\", \"entwickler\""
                              + "FROM \"spiel\""
-                             + "WHERE LOWER(\"spielname\") LIKE LOWER('" + compare + "')";
+                             + "WHERE LOWER(\"spielname\") LIKE LOWER('" + compare + "')"
+                             + "ORDER BY \"spielname\"";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
