@@ -31,12 +31,13 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
     private JScrollPane scroll;
     private JTabbedPane tab;
     private ArrayList<Game> games;
+    private User user;
     
     private final String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                                        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                                        "U", "V", "W", "X", "Y", "Z"};
 
-    public GameExplorer(JTabbedPane tab) {
+    public GameExplorer(JTabbedPane tab, User user) {
         super();
         setLayout(new BorderLayout());
 
@@ -58,7 +59,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
         content.add(searchbar, BorderLayout.NORTH);
         
         JPanel alphabetic = new JPanel();
-        alphabetic.setLayout(new GridLayout(1, 0, 1, 0));
+        alphabetic.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 0));
         searchbar.add(alphabetic, BorderLayout.CENTER);
         
         for( String lable : alphabet) {
@@ -78,11 +79,10 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
         searchButton.addActionListener(this);
         east.add(searchButton);
         
-        String[] columnNames = {"Name", "Developer"};
-        
         scroll = new JScrollPane();
         content.add(scroll, BorderLayout.CENTER);
         
+        String[] columnNames = {"Name", "Developer"};
         model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -98,6 +98,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
         header.setReorderingAllowed(false);
         
         this.tab = tab;
+        this.user = user;
     }
 
     @Override
@@ -151,7 +152,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
             String gameName = game.getName();
             int tabIndex = tab.indexOfTab(gameName);
             if(tabIndex == -1) {
-                tab.addTab(gameName, new GamePanel(game));
+                tab.addTab(gameName, new GamePanel(game, user));
             }
             tab.setSelectedIndex(tab.indexOfTab(gameName));
         }

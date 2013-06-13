@@ -14,11 +14,12 @@ public class Ratingbar extends JLabel {
     
     public Ratingbar(float value) {
         this.value = value;
-        setPreferredSize(new Dimension(150, 30));
+        setMinimumSize(new Dimension(151, 31));
+        setPreferredSize(new Dimension(151, 31));
     }
     
     
-        @Override
+    @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();

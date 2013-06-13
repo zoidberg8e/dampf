@@ -556,35 +556,56 @@ public final class DBConnector {
         return result;
     }
     
-    public Integer[][] getGameRatings(int ID) {
-        Integer[] ratingFun = {0, 0, 0, 0, 0, 0};
-        Integer[] ratingIncentive = {0, 0, 0, 0, 0, 0};
-        Integer[] ratingGraphic = {0, 0, 0, 0, 0, 0};
-        Integer[] ratingPricePerformance = {0, 0, 0, 0, 0, 0};
+    public String getGameDescription(int ID) {
+        String result = null;
+        try {
+            String statement = "SELECT kommentar FROM spiel WHERE spielid =" + ID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                result = rs.getString("kommentar");
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return result;
+    }
+    
+    public float[] getGameRatings(int ID) {
+        int funTotal = 0;
+        int incentiveTotal = 0;
+        int graphicTotal = 0;
+        int pricePerformanceTotal = 0;
+        int count = -1;
         try {
             String statement = "SELECT \"spass\", \"motivation\", \"grafik\", \"preisleistung\""
                              + "FROM \"bewertung\""
-                             + "WHERE \"spielid\"=ID";
+                             + "WHERE \"spielid\"="+ ID;
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
-                int fun = rs.getInt("spass");
-                int inc = rs.getInt("motivation");
-                int gra = rs.getInt("grafik");
-                int pri = rs.getInt("preisleistung");
-                
-                ratingFun[fun] = ratingFun[fun] + 1;
-                ratingIncentive[inc] = ratingIncentive[inc] + 1;
-                ratingGraphic[gra] = ratingGraphic[gra] + 1;
-                ratingPricePerformance[pri] = ratingPricePerformance[pri] + 1;
-                
+                funTotal += rs.getInt("spass");
+                incentiveTotal += rs.getInt("motivation");
+                graphicTotal += rs.getInt("grafik");
+                pricePerformanceTotal += rs.getInt("preisleistung");
+                count++;
             }
             rs.close();
             st.close();
+            if(count == -1) {
+                return new float[]{-1, -1, -1, -1};
+            }
+            count++;
+            float funRating = (float) funTotal / (float) count;
+            float incentiveRating = (float) incentiveTotal / (float) count;
+            float graphicRating = (float) graphicTotal / (float) count;
+            float pricePerformanceRating = (float) pricePerformanceTotal / (float) count;
             
-            Integer[][] ratings = {ratingFun, ratingIncentive, ratingGraphic, ratingPricePerformance};
-            return ratings;
+            return new float[]{funRating, incentiveRating, graphicRating, pricePerformanceRating};
         } catch (SQLException ex) {
             System.out.println(ex);
         }

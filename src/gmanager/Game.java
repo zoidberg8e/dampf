@@ -1,6 +1,5 @@
 package gmanager;
 
-import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 public class Game {
@@ -8,11 +7,11 @@ public class Game {
     private final int ID;
     private String name = null;
     private String developer = null;
-    private int[] ratingFun;
-    private int[] ratingIncentive;
-    private int[] ratingGraphic;
-    private int[] ratingPricePerformance;
-    private String description;
+    private float ratingFun = -1;
+    private float ratingIncentive = -1;
+    private float ratingGraphic = -1;
+    private float ratingPricePerformance = -1;
+    private String description = null;
     private ImageIcon image;
     
     public static final int RATING_FUN = 0;
@@ -47,6 +46,13 @@ public class Game {
         return name;
     }
     
+    public String getDescription() {
+        if(description == null) {
+           description = DBConnector.getInstance().getGameDescription(ID);
+        }
+        return description;
+    }
+    
     public String getDeveloper() {
         if(developer == null) {
             developer = DBConnector.getInstance().getGameDeveloper(ID);
@@ -54,42 +60,53 @@ public class Game {
         return developer;
     }
     
-    public float getAverageRating(int type) {
-        return 4.1245f;
+    public float getRating(int type) {
+        switch(type) {
+            case RATING_FUN: 
+                if(ratingFun == -1) {
+                    updateRatings();
+                }
+                return ratingFun;
+            case RATING_INCENTIVE: 
+                if(ratingIncentive == -1) {
+                    updateRatings();
+                }
+                return ratingIncentive;
+            case RATING_GRAPHIC: 
+                if(ratingFun == -1) {
+                    updateRatings();
+                }
+                return ratingGraphic;
+            case RATING_PRICE_PERFORMANCE: 
+                if(ratingFun == -1) {
+                    updateRatings();
+                }
+                return ratingPricePerformance;
+            default:
+                return overallRating();
+        }
     }
     
-    private float getAverage(ArrayList<Integer> list) {
-        int size = list.size();
-        if(size == 0) {
-            return -1;
+    private float overallRating() {
+        if(ratingFun == -1 ||
+           ratingIncentive == -1 ||
+           ratingGraphic == -1 ||
+           ratingPricePerformance == -1) {
+            updateRatings();
         }
-        int total = 0;
-        for (int rating : list) {
-            total += rating;
-        }
-        float average = (float) total / (float) size;
-        System.out.println(average);
+        float total = ratingFun + ratingIncentive + ratingGraphic + ratingPricePerformance;
+        float average = total / 4;
         return average;
     }
     
-//    public float getAverageRating() {
-//        int quantity = 0;
-//        int total = 0;
-//        for (int i = 0; i < rating.length; i++) {
-//            quantity += rating[i];
-//            total += rating[i] * (i + 1);
-//        }
-//        if (quantity == 0) {
-//            return 0.0f;
-//        }
-//        float avg = (float) total / (float) quantity;
-//        avg = Math.round(avg * 100) / 100.0f;
-//        return avg;
-//    }
-//    
-//    public void addRating(int r) {
-//        rating[r - 1] = rating[r - 1] + 1;
-//    }
+    private void updateRatings() {
+        float[] ratings = DBConnector.getInstance().getGameRatings(ID);
+        
+        ratingFun = ratings[0];
+        ratingIncentive = ratings[1];
+        ratingGraphic = ratings[2];
+        ratingPricePerformance = ratings[3];
+    }
     
     public ImageIcon getImage() {
         if(image == null) {
