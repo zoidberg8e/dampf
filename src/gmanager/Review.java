@@ -25,6 +25,17 @@ public class Review {
         this.pricePerformance = priceRating;
     }
     
+    public Review(int ID, User user, int funRating, int incentiveRating, int graphicRating, int priceRating, String text) {
+        this.ID = ID;
+        this.user = user;
+        
+        this.fun = funRating;
+        this.incentive = incentiveRating;
+        this.graphic = graphicRating;
+        this.pricePerformance = priceRating;
+        this.text = text;
+    }
+    
     public Review(int ID) {
         this.ID = ID;
     }
@@ -59,6 +70,34 @@ public class Review {
                 }
                 return pricePerformance;
         }
+    }
+    
+    public void setRating(int type, int value) {
+        String rating;
+        switch(type) {
+            case RATING_FUN: 
+                rating = "spass";
+            case RATING_INCENTIVE: 
+                rating = "motivation";
+            case RATING_GRAPHIC: 
+                rating = "grafik";
+            default: 
+                rating = "preisleistung";
+        }
+        DBConnector.getInstance().setReviewRating(ID, rating, value);
+        updateRatings();
+    }
+    
+    public void setText(String text) {
+        DBConnector.getInstance().setReviewText(ID, text);
+        this.text = text;
+    }
+    
+    public String getText() {
+        if(text == null) {
+            text = DBConnector.getInstance().getReviewText(ID);
+        }
+        return text;
     }
         
     public float getOverallRating() {

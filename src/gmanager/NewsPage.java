@@ -14,6 +14,7 @@ public class NewsPage extends JScrollPane {
     
     public NewsPage(String newsText) {
         super();
+        setOpaque(false);
         
         JLabel heading = new JLabel("News");
         heading.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));

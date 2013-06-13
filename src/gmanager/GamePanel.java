@@ -9,30 +9,37 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public class GamePanel extends JPanel implements MouseListener {
+public class GamePanel extends JPanel implements MouseListener, ActionListener {
     
     private final Game game;
     private JTable table;
     private ArrayList<Review> reviews;
+    private JButton composeReview;
+    private MainGUI mainGUI;
+    private User user;
     
-    public GamePanel(Game game, User u) {
+    public GamePanel(Game game, User user, MainGUI mainGUI) {
         super();
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setLayout(new BorderLayout());
@@ -108,7 +115,7 @@ public class GamePanel extends JPanel implements MouseListener {
         d.weighty = 0;
         d.gridx = 0;
         d.gridy = -1;
-        d.insets = new Insets(0, 0, 0, 10);
+        d.insets = new Insets(0, 0, 1, 10);
         
         float fun = game.getRating(Game.RATING_FUN);
         float inc = game.getRating(Game.RATING_INCENTIVE);
@@ -142,11 +149,9 @@ public class GamePanel extends JPanel implements MouseListener {
             averageRating.add(new JLabel(ratingText), d);
 
             d.gridx++;
-            averageRating.add(new Ratingbar(ratings[i]), d);
-            d.gridx++;
             d.weightx = 1;
-            float labelText = Math.round(ratings[i] * 10) / 10.0f;
-            averageRating.add(new JLabel("" + labelText), d);
+            Ratingbar ratingbar = new Ratingbar(ratings[i]);
+            averageRating.add(ratingbar, d);
         }
 
         JScrollPane scrollReviews = new JScrollPane();
@@ -174,55 +179,17 @@ public class GamePanel extends JPanel implements MouseListener {
             model.addRow(row);
         }
         
-        JPanel yourReview = new JPanel();
-        yourReview.setBorder(BorderFactory.createTitledBorder("Your Review"));
-        yourReview.setLayout(new BorderLayout());
-        reviewPanel.add(yourReview, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        add(buttonPanel, BorderLayout.SOUTH);
         
-        JPanel yourRating = new JPanel();
-        yourRating.setLayout(new GridBagLayout());
-        yourReview.add(yourRating, BorderLayout.NORTH);
-        
-        GridBagConstraints e = new GridBagConstraints();
-        e.anchor = GridBagConstraints.NORTHWEST;
-        e.fill = GridBagConstraints.NONE;
-        e.weighty = 1;
-        e.gridx = 0;
-        e.gridy = -1;
-        e.insets = new Insets(0, 0, 0, 10);
-        
-        for(int i = 0; i < 4; i++) {
+        composeReview = new JButton("Compose Review");
+        composeReview.addActionListener(this);
+        buttonPanel.add(composeReview);
 
-            e.gridy++;
-            e.weightx = 0;
-            e.gridx = 0;
-            String ratingText = "";
-            switch (i) {
-                case 0: ratingText = "Fun:"; break;
-                case 1: ratingText = "Incentive:"; break;
-                case 2: ratingText = "Graphic:"; break;
-                case 3: ratingText = "Price/Performance:"; break;
-                case 4: ratingText = "Summary"; break;
-            }
-            yourRating.add(new JLabel(ratingText), e);
-
-            e.gridx++;
-            yourRating.add(new Ratingbar(0), e);
-            e.gridx++;
-            e.weightx = 1;
-            int labelText = 0;
-            yourRating.add(new JLabel("" + labelText), e);
-        }
-        
-        JScrollPane scrollYourText = new JScrollPane();
-        scrollYourText.setPreferredSize(new Dimension(500, 120));
-        yourReview.add(scrollYourText, BorderLayout.WEST);
-        
-        JTextPane yourText = new JTextPane();
-        yourText.setText("");
-        scrollYourText.setViewportView(yourText);
-        
         this.game = game;
+        this.user = user;
+        this.mainGUI = mainGUI;
     }
 
     @Override
@@ -232,11 +199,36 @@ public class GamePanel extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e) {}
 
     @Override
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {
+    int r = table.rowAtPoint(e.getPoint());
+        if (r >= 0 && r < table.getRowCount()) {
+            table.setRowSelectionInterval(r, r);
+        }
+        else {
+            table.clearSelection();
+        }
+        
+        int rowindex = table.getSelectedRow();
+        if(rowindex < 0) {
+            return;
+        }
+        if(e.getButton() == 1 && e.getClickCount() >= 2 && e.getComponent() instanceof JTable) {
+            mainGUI.setEnabled(false);
+            new ReviewScreen(reviews.get(rowindex), false, mainGUI, null, null);
+        }}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
 
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource().equals(composeReview)) {
+            mainGUI.setEnabled(false);
+            Review review = DBConnector.getInstance().getUserGameReview(user.getID(), game.getID());
+            new ReviewScreen(review, true, mainGUI, game, user);
+        }
+    }
 }

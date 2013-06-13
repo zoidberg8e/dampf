@@ -681,4 +681,84 @@ public final class DBConnector {
         }
         return new int[]{-1, -1, -1, -1};
     }
+    
+    public String getReviewText(int reviewID) {
+        String result = null;
+        try {
+            String statement = "SELECT \"kritik\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"bewertungid\"="+ reviewID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                result = rs.getString("kritik");
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return result;
+        
+    }
+    
+    public Review getUserGameReview(int userID, int gameID) {
+        Review review = null;
+        try {
+            String statement = "SELECT \"bewertungid\", \"spass\", \"motivation\", \"grafik\", \"preisleistung\", \"kritik\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"spielid\"="+ gameID + " AND \"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            if(rs.next()) {
+                int reviewID = rs.getInt("bewertungid");
+                int fun = rs.getInt("spass");
+                int inc = rs.getInt("motivation");
+                int gra = rs.getInt("grafik");
+                int pri = rs.getInt("preisleistung");
+                String text = rs.getString("kritik");
+                review = new Review(reviewID, new User(userID), fun, inc, gra, pri, text);
+            }
+
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return review;
+    }
+    
+    public void setReviewRating(int reviewID, String type, int value) {
+        try {
+            String statement = "UPDATE \"bewertung\" SET \"" + type + "\"="+ value + " WHERE \"bewertungid\"=" + reviewID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void setReviewText(int reviewID, String text) {
+        try {
+            String statement = "UPDATE \"bewertung\" SET \"kritik\"='"+ text + "' WHERE \"bewertungid\"=" + reviewID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void createReview(int userID, int gameID, int ratingFun, int ratingIncentive, int ratingGraphic, int ratingPrice, String text) {
+        try {
+            String statement = "INSERT INTO bewertung(spielid, benutzerid, spass, motivation, grafik, preisleistung, kritik) " + 
+                    "VALUES(" + gameID + ", " + userID + ", " + ratingFun + ", " + ratingIncentive + ", " + ratingGraphic + ", " + ratingPrice + ", '" + text + "')";
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
 }

@@ -32,12 +32,13 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
     private JTabbedPane tab;
     private ArrayList<Game> games;
     private User user;
+    private MainGUI mainGUI;
     
     private final String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                                        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                                        "U", "V", "W", "X", "Y", "Z"};
 
-    public GameExplorer(JTabbedPane tab, User user) {
+    public GameExplorer(JTabbedPane tab, User user, MainGUI mainGUI) {
         super();
         setLayout(new BorderLayout());
 
@@ -99,6 +100,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
         
         this.tab = tab;
         this.user = user;
+        this.mainGUI = mainGUI;
     }
 
     @Override
@@ -152,7 +154,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
             String gameName = game.getName();
             int tabIndex = tab.indexOfTab(gameName);
             if(tabIndex == -1) {
-                tab.addTab(gameName, new GamePanel(game, user));
+                tab.addTab(gameName, new GamePanel(game, user, mainGUI));
             }
             tab.setSelectedIndex(tab.indexOfTab(gameName));
         }

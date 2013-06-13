@@ -39,6 +39,10 @@ public class User {
         this.jabber = DBConnector.getInstance().getUserJabber(id);
     }
     
+    public int getID() {
+        return this.id;
+    }
+    
     public String getEmail() {
         return email;
     }
