@@ -165,7 +165,6 @@ public class ProfilePanel extends JPanel implements ActionListener, MouseListene
         model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                //all cells false
                 return false;
             }
         };

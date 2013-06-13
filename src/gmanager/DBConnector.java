@@ -610,5 +610,75 @@ public final class DBConnector {
             System.out.println(ex);
         }
         return null;
-    } 
+    }
+    
+    public ArrayList<Review> getReviews(int gameID) {
+        ArrayList<Review> list = new ArrayList<Review>();
+        try {
+            String statement = "SELECT \"bewertungid\", \"benutzerid\", \"spass\", \"motivation\", \"grafik\", \"preisleistung\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"spielid\"="+ gameID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            while (rs.next()) {
+                int reviewID = rs.getInt("bewertungid");
+                int userID = rs.getInt("benutzerid");
+                int fun = rs.getInt("spass");
+                int incentive = rs.getInt("motivation");
+                int graphic = rs.getInt("grafik");
+                int price = rs.getInt("preisleistung");
+                Review review = new Review(reviewID, new User(userID), fun, incentive, graphic, price);
+                list.add(review);
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return list;
+    }
+    
+    public User getReviewUser(int reviewID) {
+        User user = null;
+        try {
+            String statement = "SELECT \"benutzerid\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"bewertungid\"="+ reviewID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                user = new User(rs.getInt("benutzerid"));
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return user;
+    }
+    
+    public int[] getReviewRatings(int reviewID) {
+        try {
+            String statement = "SELECT \"spass\", \"motivation\", \"grafik\", \"preisleistung\""
+                             + "FROM \"bewertung\""
+                             + "WHERE \"bewertungid\"="+ reviewID;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(statement);
+            
+            if (rs.next()) {
+                int fun = rs.getInt("spass");
+                int incentive = rs.getInt("motivation");
+                int graphic = rs.getInt("grafik");
+                int price = rs.getInt("preisleistung");
+                return new int[]{fun, incentive, graphic, price};
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return new int[]{-1, -1, -1, -1};
+    }
 }
