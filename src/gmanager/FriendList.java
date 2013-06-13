@@ -7,14 +7,13 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
-public class FriendList extends JPanel implements PopupMenuListener {
+public class FriendList extends JPanel {
     
     private JPanel content;
     private CollapseableList requestsPanel, friendsPanel, requestedPanel;
     
-    public FriendList(User[] requests, User[] friends, User[] requested) {
+    public FriendList(User owner, User[] requests, User[] friends, User[] requested) {
         super();
         setLayout(new BorderLayout());
         
@@ -29,14 +28,14 @@ public class FriendList extends JPanel implements PopupMenuListener {
         c.gridy = 0;
         c.insets = new Insets(2, 0, 15, 0);
         
-        requestsPanel = new CollapseableList(CollapseableList.TYPE_REQUEST, requests);
+        requestsPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUEST, requests, this);
         content.add(requestsPanel, c);
         
-        friendsPanel = new CollapseableList(CollapseableList.TYPE_FRIEND, friends);
+        friendsPanel = new CollapseableList(owner, CollapseableList.TYPE_FRIEND, friends, this);
         c.gridy++;
         content.add(friendsPanel, c);
       
-        requestedPanel = new CollapseableList(CollapseableList.TYPE_REQUESTED, requested);
+        requestedPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUESTED, requested, this);
         c.gridy++;
         content.add(requestedPanel, c);
     }
@@ -46,16 +45,4 @@ public class FriendList extends JPanel implements PopupMenuListener {
         friendsPanel.updateUserList(friends);
         requestedPanel.updateUserList(requested);
     }
-    
-    @Override
-    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-//        UserPopupMenu u = (UserPopupMenu) e.getSource();
-//        contextMenuUser = u.getUser();
-    }
-    
-    @Override
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
-    
-    @Override
-    public void popupMenuCanceled(PopupMenuEvent e) {}
 }

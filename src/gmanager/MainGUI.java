@@ -100,7 +100,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         alignFriendsNorth.setLayout(new BorderLayout());
         
         User u = gameManager.getUser();
-        friendList = new FriendList(u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
+        friendList = new FriendList(u, u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
         alignFriendsNorth.add(friendList, BorderLayout.NORTH);
         
         Timer t = new Timer(60000, new ActionListener() {

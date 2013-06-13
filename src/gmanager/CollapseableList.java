@@ -1,37 +1,46 @@
 package gmanager;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
-public class CollapseableList extends JPanel implements ActionListener {
+public class CollapseableList extends JPanel implements ActionListener, MouseListener {
     
     private User[] users;
+    private User owner;
+    private User contextUser;
     private CollapseButton button;
     private JPanel userList;
     private JLabel header;
     private String headerText;
     private boolean visible = true;
     private GridBagConstraints global;
+    private FriendList friendlist;
+    
+    private JPopupMenu menu;
+    
+    private JMenuItem accept, decline;
     
     public static final int TYPE_REQUEST = 0;
     public static final int TYPE_FRIEND = 1;
     public static final int TYPE_REQUESTED = 2;
     
-    public CollapseableList(int type, User[] users) {   
+    public CollapseableList(User owner, int type, User[] users, FriendList friendlist) {
         super(new GridBagLayout());
         
         this.users = users;
+        this.owner = owner;
+        this.friendlist = friendlist;
 
         global = new GridBagConstraints();
         global.fill = GridBagConstraints.HORIZONTAL;
@@ -75,6 +84,7 @@ public class CollapseableList extends JPanel implements ActionListener {
     
     private JPanel createUserList() {
         JPanel base = new JPanel(new GridBagLayout());
+        base.addMouseListener(this);
         
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -84,7 +94,9 @@ public class CollapseableList extends JPanel implements ActionListener {
         
         for (int i = 0; i < users.length; i++) {
             Color background;
-            JPanel userCard = new JPanel();
+            
+            UserCard userCard = new UserCard(users[i]);
+            userCard.addMouseListener(this);
             if (i % 2 == 0) {
                 background = new Color(220, 230, 255);
             }
@@ -92,32 +104,10 @@ public class CollapseableList extends JPanel implements ActionListener {
                 background = new Color(190, 210, 255);
             }
             userCard.setBackground(background);
-            userCard.setLayout(new BorderLayout());
-            userCard.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-            ImageIcon userImage = users[i].getImage();
-            int originalHeight = userImage.getIconHeight();
-            int size = 48;
-            if(originalHeight != size) {
-                Image originalImage = userImage.getImage();
-                userImage = new ImageIcon(originalImage.getScaledInstance(size, size, Image.SCALE_SMOOTH));
-            }
-            
-            JLabel thumbnail = new JLabel(userImage);
-            thumbnail.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            userCard.add(thumbnail, BorderLayout.WEST);
-
-            JLabel friendName = new JLabel(users[i].getUsername());
-            friendName.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-            userCard.add(friendName, BorderLayout.CENTER);
             c.gridy++;
             base.add(userCard, c);
         }
         return base;
-    }
-    
-    private void setUserMenu() {
-        
     }
     
     public void updateUserList(User[] users) {
@@ -155,5 +145,48 @@ public class CollapseableList extends JPanel implements ActionListener {
             userList.setVisible(!visible);
             visible = !visible;
         }
+        if(e.getSource().equals(accept)) {
+            DBConnector.getInstance().createFriendship(owner, contextUser);
+            User[] requests = DBConnector.getInstance().getFriendRequests(owner.getID());
+            User[] friends = DBConnector.getInstance().getFriends(owner.getID());
+            User[] requested = DBConnector.getInstance().getUnansweredRequests(owner.getID());
+            friendlist.update(requests, friends, requested);
+        }
+        if(e.getSource().equals(decline)) {
+            
+        }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if(e.getButton() == 3) {
+            UserCard source = (UserCard) e.getSource();
+            contextUser = source.getUser();
+
+            JPopupMenu popup = new JPopupMenu();
+
+            accept = new JMenuItem("Accept");
+            accept.addActionListener(this);
+            popup.add(accept);
+
+            decline = new JMenuItem("Decline");
+            decline.addActionListener(this);
+            popup.add(decline);
+
+
+            popup.show(source, e.getX(), e.getY());
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }

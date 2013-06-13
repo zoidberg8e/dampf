@@ -352,7 +352,7 @@ public final class DBConnector {
     public User[] searchUsers(String searchText) {
         List<User> result = new ArrayList();
         try {
-            String statement = "SELECT benutzerid FROM benutzer WHERE name LIKE '%" + searchText + "%' OR email LIKE '%" + searchText + "%'";
+            String statement = "SELECT benutzerid FROM benutzer WHERE LOWER(name) LIKE LOWER('%" + searchText + "%') OR LOWER(email) LIKE LOWER('%" + searchText + "%')";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -368,12 +368,12 @@ public final class DBConnector {
     
     public void requestFriend(User requestor, User requested) {
         
-        String mail1 = requestor.getEmail();
-        String mail2 = requested.getEmail();
+        int id1 = requestor.getID();
+        int id2 = requested.getID();
         
         try {
-            String statement = "SELECT * FROM freundschaft WHERE benutzer1 = '" +
-                    mail1 + "' AND benutzer2 = '" + mail2 + "'";
+            String statement = "SELECT * FROM freundschaft WHERE benutzer1=" +
+                    id1 + " AND benutzer2 =" + id2;
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
@@ -386,7 +386,21 @@ public final class DBConnector {
         
         try {
             String statement = "INSERT INTO freundschaft(benutzer1, benutzer2) " + 
-                    "VALUES('" + mail1 + "', '" + mail2 + "')";
+                    "VALUES(" + id1 + ", " + id2 + ")";
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void createFriendship(User requestor, User requested) {
+        int id1 = requestor.getID();
+        int id2 = requested.getID();
+        
+        try {
+            String statement = "INSERT INTO freundschaft(benutzer1, benutzer2) " + 
+                    "VALUES(" + id1 + ", " + id2 + ")";
             Statement st = con.createStatement();
             st.executeUpdate(statement);
         } catch (SQLException ex) {
