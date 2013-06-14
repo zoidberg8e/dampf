@@ -6,14 +6,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.event.PopupMenuEvent;
+import javax.swing.JTabbedPane;
 
 public class FriendList extends JPanel {
     
     private JPanel content;
     private CollapseableList requestsPanel, friendsPanel, requestedPanel;
     
-    public FriendList(User owner, User[] requests, User[] friends, User[] requested) {
+    public FriendList(User owner, User[] requests, User[] friends, User[] requested, JTabbedPane tab, MainGUI mainGUI) {
         super();
         setLayout(new BorderLayout());
         
@@ -28,14 +28,14 @@ public class FriendList extends JPanel {
         c.gridy = 0;
         c.insets = new Insets(2, 0, 15, 0);
         
-        requestsPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUEST, requests, this);
+        requestsPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUEST, requests, this, tab, mainGUI);
         content.add(requestsPanel, c);
         
-        friendsPanel = new CollapseableList(owner, CollapseableList.TYPE_FRIEND, friends, this);
+        friendsPanel = new CollapseableList(owner, CollapseableList.TYPE_FRIEND, friends, this, tab, mainGUI);
         c.gridy++;
         content.add(friendsPanel, c);
       
-        requestedPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUESTED, requested, this);
+        requestedPanel = new CollapseableList(owner, CollapseableList.TYPE_REQUESTED, requested, this, tab, mainGUI);
         c.gridy++;
         content.add(requestedPanel, c);
     }

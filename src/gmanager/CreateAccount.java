@@ -124,20 +124,24 @@ public class CreateAccount extends JFrame implements ActionListener {
 
             boolean valid = true;
 
-            if (email.equals("")) {
+            if (email.equals("") || !email.matches("^[a-zA-Z0-9]+[a-zA-Z0-9._-]*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$")) {
                 valid = false;
                 mail.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
             }
-            if (username.equals("")) {
+            if (username.equals("") || !username.matches("[a-zA-Z0-9]{3,100}")) {
                 valid = false;
                 name.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+                JOptionPane.showMessageDialog(null, "Invalid Username.\nAllowed Characters are: a-z, A-Z and 0-9\nMust not be longer than 100 characters and shorter than 3 characters.", "Invalid Username", JOptionPane.ERROR_MESSAGE);
             }
-            if (pw.equals("")) {
+            if (pw.equals("") || !pw.matches("[a-zA-Z0-9-.+_]{6,100}")) {
                 valid = false;
                 password.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+                JOptionPane.showMessageDialog(null, "Invalid Password.\nAllowed Characters are: a-z, A-Z, 0-9 and '+-._'\nMust not be longer than 50 characters and shorter than 6 characters.", "Invalid Password", JOptionPane.ERROR_MESSAGE);
             }
-            if (pw2.equals("")) {
+            if (pw2.equals("") || !pw2.matches("[a-zA-Z0-9-.+_]{6,100}")) {
+                valid = false;
                 confirmPw.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+                JOptionPane.showMessageDialog(null, "Invalid Password.\nAllowed Characters are: a-z, A-Z, 0-9 and '+-._'\nMust not be longer than 50 characters and shorter than 6 characters.", "Invalid Password", JOptionPane.ERROR_MESSAGE);
             }
             if (valid) {
                 if (DBConnector.getInstance().emailExists(email)) {

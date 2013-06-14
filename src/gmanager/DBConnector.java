@@ -245,6 +245,17 @@ public final class DBConnector {
         return false;
     }
     
+    public void deleteUser(int userID) {
+        try {
+                String statement = "DELETE FROM \"benutzer\"" + 
+                                   "WHERE \"benutzerid\"=" + userID;
+                Statement st = con.createStatement();
+                st.executeUpdate(statement);
+            } catch (SQLException ex) {
+                System.out.println(ex);
+            }
+    }
+    
     public String getUserName(int id) {
         if(!idExists(id)) {
             return null;
@@ -444,6 +455,17 @@ public final class DBConnector {
         return 0;
     }
     
+    public void setUserAge(int userID, int age) {
+        try {
+            String statement = "UPDATE \"benutzer\" SET \"age\"="+ age + " WHERE \"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
     public int getUserICQ(int id) {
         try {
             String statement = "SELECT icq FROM benutzer WHERE benutzerid = '" + id + "'";
@@ -460,6 +482,17 @@ public final class DBConnector {
             System.out.println(ex);
         }
         return 0;
+    }
+    
+    public void setUserICQ(int userID, int icq) {
+        try {
+            String statement = "UPDATE \"benutzer\" SET \"icq\"="+ icq + " WHERE \"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
     }
     
     public String getUserJabber(int id) {
@@ -480,25 +513,38 @@ public final class DBConnector {
         return null;
     }
     
-    public ArrayList<String[]> getUserGames(int id) {
-        ArrayList<String[]> list = new ArrayList<String[]>();
+    public void setUserJabber(int userID, String jabber) {
         try {
-            String statement = "SELECT \"spielname\", \"spielzeit\", \"spielt\" FROM \"besitz\" LEFT JOIN"
-                             + "\"spiel\" ON \"spiel\".\"spielid\"=\"besitz\".\"spielid\""
-                             + "WHERE \"besitz\".\"benutzerid\" =" + id
+            String statement = "UPDATE \"benutzer\" SET \"jabber\"='"+ jabber + "' WHERE \"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public ArrayList<String[]> getUserGames(int id) {
+        ArrayList<String[]> list = new ArrayList();
+        try {
+            String statement = "SELECT \"spielname\", \"spielt\", \"spielid\""
+                             + "FROM \"benutzerspiele\""
+                             + "WHERE \"benutzerid\" =" + id
                              + "ORDER BY \"spielname\"";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(statement);
             
             while (rs.next()) {
                 String[] game = new String[3];
-                game[0] = rs.getString("spielname");
-                int playTime = rs.getInt("spielzeit");
-                int hour = playTime / 3600;
-                int minute = (playTime - (hour * 3600) )/ 60;
-                DecimalFormat df = new DecimalFormat("00");
-                game[1] = hour + ":" + df.format(minute);
-                game[2] = "No";
+                game[0] = "" + rs.getString("spielid");
+                game[1] = rs.getString("spielname");
+                if(rs.getBoolean("spielt")) {
+                    game[2] = "Yes";
+                }
+                else {
+                    game[2] = "No";
+                }
+
                 list.add(game);
             }
             rs.close();
@@ -773,6 +819,57 @@ public final class DBConnector {
                     "VALUES(" + gameID + ", " + userID + ", " + ratingFun + ", " + ratingIncentive + ", " + ratingGraphic + ", " + ratingPrice + ", '" + text + "')";
             Statement st = con.createStatement();
             st.executeUpdate(statement);
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void setUserGamePlaying(int userID, int gameID, boolean playing) {
+        try {
+            String statement = "UPDATE \"besitz\" SET \"spielt\"='"+ playing + "'" 
+                             + "WHERE \"spielid\"=" + gameID + "AND"
+                             + "\"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void addUserGame(int userID, int gameID) {
+        try {
+            String statement = "INSERT INTO besitz(benutzerid, spielid)" 
+                             + "VALUES(" + userID + "," + gameID + ")";
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void removeUserGame(int userID, int gameID) {
+        try {
+            String statement = "DELETE FROM \"besitz\"" 
+                             + "WHERE \"spielid\"=" + gameID + "AND"
+                             + "\"benutzerid\"=" + userID;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    public void deleteFriendship(int userID1, int userID2) {
+        try {
+            String statement = "DELETE FROM \"freundschaft\"" 
+                             + "WHERE \"benutzer1\"=" + userID1 + "AND"
+                             + "\"benutzer2\"=" + userID2;
+            Statement st = con.createStatement();
+            st.executeUpdate(statement);
+            st.close();
         } catch (SQLException ex) {
             System.out.println(ex);
         }

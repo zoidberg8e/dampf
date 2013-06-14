@@ -18,9 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -35,11 +33,12 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener {
     private final Game game;
     private JTable table;
     private ArrayList<Review> reviews;
-    private JButton composeReview;
+    private JButton composeReview, addGameToProfile, removeGameFromProfile;
     private MainGUI mainGUI;
     private User user;
+    private ProfilePanel userProfile;
     
-    public GamePanel(Game game, User user, MainGUI mainGUI) {
+    public GamePanel(Game game, User user, MainGUI mainGUI, ProfilePanel userProfile) {
         super();
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setLayout(new BorderLayout());
@@ -186,7 +185,33 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener {
         composeReview = new JButton("Compose Review");
         composeReview.addActionListener(this);
         buttonPanel.add(composeReview);
-
+        
+        addGameToProfile = new JButton("Add to Profile");
+        addGameToProfile.addActionListener(this);
+        buttonPanel.add(addGameToProfile);
+        
+        removeGameFromProfile = new JButton("Remove from Profile");
+        removeGameFromProfile.addActionListener(this);
+        buttonPanel.add(removeGameFromProfile);
+        
+        ArrayList<String[]> userGames = user.getGames();
+        int gameID = game.getID();
+        boolean owns = false;
+        for(String[] userGame : userGames) {
+            int i = Integer.parseInt(userGame[0]);
+            if(gameID == i) {
+                owns = true;
+                break;
+            }
+        }
+        if(owns) {
+            addGameToProfile.setVisible(false);
+        }
+        else {
+            removeGameFromProfile.setVisible(false);
+        }
+        
+        this.userProfile = userProfile;
         this.game = game;
         this.user = user;
         this.mainGUI = mainGUI;
@@ -229,6 +254,18 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener {
             mainGUI.setEnabled(false);
             Review review = DBConnector.getInstance().getUserGameReview(user.getID(), game.getID());
             new ReviewScreen(review, true, mainGUI, game, user);
+        }
+        else if(e.getSource().equals(addGameToProfile)) {
+            addGameToProfile.setVisible(false);
+            DBConnector.getInstance().addUserGame(user.getID(), game.getID());
+            userProfile.updateGames(DBConnector.getInstance().getUserGames(user.getID()));
+            removeGameFromProfile.setVisible(true);
+        }
+        else if(e.getSource().equals(removeGameFromProfile)) {
+            removeGameFromProfile.setVisible(false);
+            DBConnector.getInstance().removeUserGame(user.getID(), game.getID());
+            userProfile.updateGames(DBConnector.getInstance().getUserGames(user.getID()));
+            addGameToProfile.setVisible(true);
         }
     }
 }

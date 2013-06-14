@@ -55,12 +55,27 @@ public class User {
         return age;
     }
     
+    public void setAge(int age) {
+        DBConnector.getInstance().setUserAge(id, age);
+        this.age = age;
+    }
+    
     public int getICQ() {
         return icq;
     }
     
+    public void setICQ(int icq) {
+        DBConnector.getInstance().setUserICQ(id, icq);
+        this.icq = icq;
+    }
+    
     public String getJabber() {
         return jabber;
+    }
+    
+    public void setJabber(String jabber) {
+        DBConnector.getInstance().setUserJabber(id, jabber);
+        this.jabber = jabber;
     }
     
     public void setImage(String path) {

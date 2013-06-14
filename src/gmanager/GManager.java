@@ -8,26 +8,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class GManager {
     
     private User user;
-    private long startTime = -1;
-    private boolean recordingTime = false;
     
     public GManager(User user) {
         this.user = user;
-    }
-    
-    public void startTime() {
-        startTime = System.currentTimeMillis();
-        recordingTime = true;
-    }
-    
-    public long stopTime() {
-        if (!recordingTime) {
-            return 0;
-        }
-        long stopTime = System.currentTimeMillis();
-        recordingTime = false;
-        startTime = -1;
-        return (stopTime - startTime);
     }
     
     public User getUser() {
@@ -51,10 +34,7 @@ public class GManager {
         }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                //new LoginScreen();
-                User u = new User(1);
-                //u.setUserImage("/home/patrickd/Desktop/cartman.png");
-                new MainGUI(new GManager(u));
+                new LoginScreen();
             }
         });
     }

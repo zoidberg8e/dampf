@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,15 +19,16 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
-public class MainGUI extends JFrame implements ActionListener, KeyListener {
+public class MainGUI extends JFrame implements ActionListener, KeyListener, WindowListener {
     
-    private JMenuItem exit, logout;
+    private JMenuItem exit, logout, deleteAccount;
     private JScrollPane profile;
     private GameExplorer explorer;
     private JTextField searchFriends;
@@ -33,13 +36,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
     private JTabbedPane tabbedPane;
     private GManager gameManager;
     private FriendList friendList;
-   // private FriendFinder friendFinder;
 
     public MainGUI(GManager gm) {
         super("GManager");
         
         gameManager = gm;
         
+        addWindowListener(this);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setExtendedState(MAXIMIZED_BOTH);
         JMenuBar menubar = new JMenuBar();
@@ -60,6 +63,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         exit.addActionListener(this);
         file.add(exit);
         
+        JMenu account = new JMenu("Account");
+        menubar.add(account);
+        
+        deleteAccount = new JMenuItem("Delete Account");
+        deleteAccount.addActionListener(this);
+        account.add(deleteAccount);
+        
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
         
@@ -69,10 +79,11 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         
         tabbedPane.addTab("News", new NewsPage("<html>Welcome to the brand new GManager</html>"));
         
-        profile = new JScrollPane(new ProfilePanel(gameManager.getUser(), true));
+        ProfilePanel userProfile = new ProfilePanel(gameManager.getUser(), true, tabbedPane, this);
+        profile = new JScrollPane(userProfile);
         tabbedPane.addTab("My Profile", profile);
         
-        explorer = new GameExplorer(tabbedPane, gm.getUser(), this);
+        explorer = new GameExplorer(tabbedPane, gm.getUser(), this, userProfile);
         tabbedPane.addTab("Game Explorer", explorer);
         
         JPanel east = new JPanel();
@@ -100,7 +111,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
         alignFriendsNorth.setLayout(new BorderLayout());
         
         User u = gameManager.getUser();
-        friendList = new FriendList(u, u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests());
+        friendList = new FriendList(u, u.getFriendRequests(), u.getFriends(), u.getUnansweredRequests(), tabbedPane, this);
         alignFriendsNorth.add(friendList, BorderLayout.NORTH);
         
         Timer t = new Timer(60000, new ActionListener() {
@@ -189,11 +200,21 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(exit)) {
+            endAllPlaying();
             System.exit(0);
         }
         else if(e.getSource().equals(logout)) {
             dispose();
+            endAllPlaying();
             new LoginScreen();
+        }
+        else if(e.getSource().equals(deleteAccount)) {
+            int result = JOptionPane.showConfirmDialog(null, "Do your realy want to delete your account?", "Delete Account", JOptionPane.YES_NO_OPTION);
+            if(result == 0) {
+                DBConnector.getInstance().deleteUser(gameManager.getUser().getID());
+                dispose();
+                new LoginScreen();
+            }
         }
         else if(e.getSource().equals(addFriend)) {
             //if(friendFinder == null) {
@@ -225,6 +246,38 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener {
                 User[] requested = search(keyword, gameManager.getUser().getUnansweredRequests());
                 
                 friendList.update(requests, friends, requested);
+            }
+        }
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {}
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        endAllPlaying();
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {}
+
+    @Override
+    public void windowIconified(WindowEvent e) {}
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {}
+
+    @Override
+    public void windowActivated(WindowEvent e) {}
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {}
+    
+    private void endAllPlaying() {
+        ArrayList<String[]> games = DBConnector.getInstance().getUserGames(gameManager.getUser().getID());
+        for (String[] game : games) {
+            if(game[2].equals("Yes")) {
+                DBConnector.getInstance().setUserGamePlaying(gameManager.getUser().getID(), Integer.parseInt(game[0]), false);
             }
         }
     }

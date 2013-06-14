@@ -3,7 +3,6 @@ package gmanager;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -33,12 +32,13 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
     private ArrayList<Game> games;
     private User user;
     private MainGUI mainGUI;
+    private ProfilePanel userProfile;
     
     private final String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                                        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                                        "U", "V", "W", "X", "Y", "Z"};
 
-    public GameExplorer(JTabbedPane tab, User user, MainGUI mainGUI) {
+    public GameExplorer(JTabbedPane tab, User user, MainGUI mainGUI, ProfilePanel userProfile) {
         super();
         setLayout(new BorderLayout());
 
@@ -99,6 +99,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
         header.setReorderingAllowed(false);
         
         this.tab = tab;
+        this.userProfile = userProfile;
         this.user = user;
         this.mainGUI = mainGUI;
     }
@@ -154,7 +155,7 @@ public class GameExplorer extends JPanel implements ActionListener, MouseListene
             String gameName = game.getName();
             int tabIndex = tab.indexOfTab(gameName);
             if(tabIndex == -1) {
-                tab.addTab(gameName, new GamePanel(game, user, mainGUI));
+                tab.addTab(gameName, new GamePanel(game, user, mainGUI, userProfile));
             }
             tab.setSelectedIndex(tab.indexOfTab(gameName));
         }

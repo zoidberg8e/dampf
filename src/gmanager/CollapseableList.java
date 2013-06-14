@@ -13,6 +13,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 
 public class CollapseableList extends JPanel implements ActionListener, MouseListener {
     
@@ -26,21 +27,25 @@ public class CollapseableList extends JPanel implements ActionListener, MouseLis
     private boolean visible = true;
     private GridBagConstraints global;
     private FriendList friendlist;
+    private MainGUI mainGUI;
+    
+    private JTabbedPane tab;
     
     private JPopupMenu menu;
-    
-    private JMenuItem accept, decline;
+    private JMenuItem accept, decline, cancelRequest, showProfile, cancelFriendship;
     
     public static final int TYPE_REQUEST = 0;
     public static final int TYPE_FRIEND = 1;
     public static final int TYPE_REQUESTED = 2;
     
-    public CollapseableList(User owner, int type, User[] users, FriendList friendlist) {
+    public CollapseableList(User owner, int type, User[] users, FriendList friendlist, JTabbedPane tab, MainGUI mainGUI) {
         super(new GridBagLayout());
         
         this.users = users;
         this.owner = owner;
         this.friendlist = friendlist;
+        this.tab = tab;
+        this.mainGUI = mainGUI;
 
         global = new GridBagConstraints();
         global.fill = GridBagConstraints.HORIZONTAL;
@@ -77,9 +82,42 @@ public class CollapseableList extends JPanel implements ActionListener, MouseLis
         global.gridy++;
         add(userList, global);
         
+        menu = createPopupMenu(type);
+        
         if(users.length == 0) {
             setVisible(false);
         }
+    }
+    
+    private JPopupMenu createPopupMenu(int type) {
+        JPopupMenu menu = new JPopupMenu();
+        switch (type) {
+            case TYPE_REQUEST:
+                accept = new JMenuItem("Accept");
+                accept.addActionListener(this);
+                menu.add(accept);
+                
+                decline = new JMenuItem("Decline");
+                decline.addActionListener(this);
+                menu.add(decline);
+                break;
+            case TYPE_FRIEND:
+                showProfile = new JMenuItem("Show Profile");
+                showProfile.addActionListener(this);
+                menu.add(showProfile);
+                
+                cancelFriendship = new JMenuItem("Remove");
+                cancelFriendship.addActionListener(this);
+                menu.add(cancelFriendship);
+                ;
+                break;
+            case TYPE_REQUESTED:
+                cancelRequest = new JMenuItem("Cancel");
+                cancelRequest.addActionListener(this);
+                menu.add(cancelRequest);
+                break;
+        }
+        return menu;
     }
     
     private JPanel createUserList() {
@@ -145,15 +183,42 @@ public class CollapseableList extends JPanel implements ActionListener, MouseLis
             userList.setVisible(!visible);
             visible = !visible;
         }
-        if(e.getSource().equals(accept)) {
+        else if(e.getSource().equals(accept)) {
             DBConnector.getInstance().createFriendship(owner, contextUser);
             User[] requests = DBConnector.getInstance().getFriendRequests(owner.getID());
             User[] friends = DBConnector.getInstance().getFriends(owner.getID());
             User[] requested = DBConnector.getInstance().getUnansweredRequests(owner.getID());
             friendlist.update(requests, friends, requested);
         }
-        if(e.getSource().equals(decline)) {
-            
+        else if(e.getSource().equals(decline)) {
+            DBConnector.getInstance().deleteFriendship(contextUser.getID(), owner.getID());
+            User[] requests = DBConnector.getInstance().getFriendRequests(owner.getID());
+            User[] friends = DBConnector.getInstance().getFriends(owner.getID());
+            User[] requested = DBConnector.getInstance().getUnansweredRequests(owner.getID());
+            friendlist.update(requests, friends, requested);
+        }
+        else if(e.getSource().equals(cancelFriendship)) {
+            DBConnector.getInstance().deleteFriendship(contextUser.getID(), owner.getID());
+            DBConnector.getInstance().deleteFriendship(owner.getID(), contextUser.getID());
+            User[] requests = DBConnector.getInstance().getFriendRequests(owner.getID());
+            User[] friends = DBConnector.getInstance().getFriends(owner.getID());
+            User[] requested = DBConnector.getInstance().getUnansweredRequests(owner.getID());
+            friendlist.update(requests, friends, requested);
+        }
+        else if(e.getSource().equals(cancelRequest)) {
+            DBConnector.getInstance().deleteFriendship(owner.getID(), contextUser.getID());
+            User[] requests = DBConnector.getInstance().getFriendRequests(owner.getID());
+            User[] friends = DBConnector.getInstance().getFriends(owner.getID());
+            User[] requested = DBConnector.getInstance().getUnansweredRequests(owner.getID());
+            friendlist.update(requests, friends, requested);
+        }
+        else if(e.getSource().equals(showProfile)) {
+            String contextUsername = contextUser.getUsername();
+            int index = tab.indexOfTab(contextUsername);
+            if(index == -1) {
+                tab.addTab(contextUsername, new ProfilePanel(contextUser, false, tab, mainGUI));
+            }
+            tab.setSelectedIndex(tab.indexOfTab(contextUsername));
         }
     }
 
@@ -168,19 +233,8 @@ public class CollapseableList extends JPanel implements ActionListener, MouseLis
         if(e.getButton() == 3) {
             UserCard source = (UserCard) e.getSource();
             contextUser = source.getUser();
-
-            JPopupMenu popup = new JPopupMenu();
-
-            accept = new JMenuItem("Accept");
-            accept.addActionListener(this);
-            popup.add(accept);
-
-            decline = new JMenuItem("Decline");
-            decline.addActionListener(this);
-            popup.add(decline);
-
-
-            popup.show(source, e.getX(), e.getY());
+            
+            menu.show(source, e.getX(), e.getY());
         }
     }
 
